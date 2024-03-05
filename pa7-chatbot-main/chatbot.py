@@ -48,6 +48,7 @@ class Chatbot:
         ########################################################################
 
         greeting_message = "How can I help you?"
+        greeting_message = 'Hello from Yiling!'
 
         ########################################################################
         #                             END OF YOUR CODE                         #
