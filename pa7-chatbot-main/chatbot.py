@@ -257,10 +257,10 @@ class Chatbot:
         :returns: a numerical value for the sentiment of the text
         """
         # Train 
-
+        
         for word in preprocessed_input:
-            label = 1 if example.label == 1 else 0
-            self.label_counts[label] += 1
+            label = 1 if self.sentiment[word] == 'pos' else 0
+            self.label_counts['pos'] += 1
             for word in example.words:
                 if self.filter_stop_words and word in self.stop_words:
                     continue
@@ -283,7 +283,7 @@ class Chatbot:
 
         # Classify
         results = []
-        for example in examples:
+        for word in preprocessed_input:
             # calculate the log prior probability for each class
             score = {label: np.log(self.label_counts[label] / self.total_examples) for label in ["aid", "not"]}
             # score each word through the addition of log word probability (if the word is in voca)
@@ -293,7 +293,7 @@ class Chatbot:
                         score[label] += np.log(self.word_probs[label][word])
             # making predictions
             if return_scores:
-                results.append(score["aid"])
+                results.append(score["pos"])
             else:
                 results.append(1 if score["aid"] > score["not"] else 0)
         return results
