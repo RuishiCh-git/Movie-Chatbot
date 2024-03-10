@@ -26,7 +26,6 @@ class Chatbot:
         # movie i by user j
         self.titles, ratings = util.load_ratings('data/ratings.txt')
         self.sentiment = util.load_sentiment_dictionary('data/sentiment.txt')
-        self.movies = util.load_titles('data/movies.txt')
 
         ########################################################################
         # TODO: Binarize the movie ratings matrix.                             #
@@ -322,7 +321,7 @@ class Chatbot:
 
         # The starter code returns a new matrix shaped like ratings but full of
         # zeros.
-        binarized_ratings = np.zeros_like(ratings)
+        binarized_ratings = (np.ratings > 2.5).astype(int)
 
         ########################################################################
         #                        END OF YOUR CODE                              #
@@ -430,4 +429,7 @@ class Chatbot:
 if __name__ == '__main__':
     print('To run your chatbot in an interactive loop from the command line, '
           'run:')
+    chatbot = Chatbot()
+    print(chatbot.sentiment)
+    # print( 'hi')
     print('    python3 repl.py')
