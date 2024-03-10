@@ -31,7 +31,7 @@ class Chatbot:
         # TODO: Binarize the movie ratings matrix.                             #
         ########################################################################
 
-        self.ratings = self.binarize(self.ratings)
+        ratings = self.binarize(ratings)
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
@@ -469,7 +469,5 @@ class Chatbot:
 if __name__ == '__main__':
     print('To run your chatbot in an interactive loop from the command line, '
           'run:')
-    chatbot = Chatbot()
-    print(chatbot.ratings[10])
-    # print( 'hi')
-    print('    python3 repl.py')
+    # chatbot = Chatbot()
+    print('python3 repl.py')

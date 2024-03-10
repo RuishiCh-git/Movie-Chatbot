@@ -1,0 +1,54 @@
+Welcome to Stanford CS124's
+ _______  _______       ___________
+|       ||   _   |      \          \
+|    _  ||  |_|  | ____  ------    /
+|   |_| ||       ||____|      /   /
+|    ___||       |           /   /       
+|   |    |   _   |          /   /      
+|___|    |__| |__|         /___/
+
+ _______  __   __  _______  _______  _______  _______  _______  __
+|       ||  | |  ||   _   ||       ||  _    ||       ||       ||  |
+|       ||  |_|  ||  |_|  ||_     _|| |_|   ||   _   ||_     _||  |
+|       ||       ||       |  |   |  |       ||  | |  |  |   |  |  |
+|      _||       ||       |  |   |  |  _   | |  |_|  |  |   |  |__|
+|     |_ |   _   ||   _   |  |   |  | |_|   ||       |  |   |   __
+|_______||__| |__||__| |__|  |___|  |_______||_______|  |___|  |__|
+
+
+        Your task is to implement the chatbot as detailed in the PA7
+        instructions.
+        Remember: in the GUS mode, movie names will come in quotation marks
+        and expressions of sentiment will be simple!
+        TODO: Write here the description for your own chatbot!
+        
+[96mEduBot> [0mHi! I am an EduBot. How may I help you!
+> What is your purpose?
+
+[96mEduBot> [0m My purpose is to help users find movies they might like and provide information about movies. I can recommend movies based on various factors such as genre, director, actors, and user preferences. I can also answer questions about movie plot, cast, release date, and more. Is there a specific movie or genre you are interested in?
+> Can you recommend me a place to buy new or used cars?
+
+[96mEduBot> [0m I'm sorry for any confusion, but I am a movie recommender chatbot and I don't have information about car dealerships. However, I can recommend some popular online platforms where you can buy new or used cars such as:
+
+* Carvana
+* CarMax
+* Autotrader
+* TrueCar
+* Edmunds
+
+These websites allow you to search for cars based on various criteria such as make, model, year, price, and location. They also provide detailed information about the cars, including photos, features, and vehicle history reports. It's always a good idea to research and compare different options before making a purchase.
+
+Is there a specific movie or genre you are interested in? I would be happy to help you with that.
+> Tell me about AutoTrader.
+
+[96mEduBot> [0m AutoTrader is an online marketplace for buying and selling new and used cars. It is one of the most popular car shopping websites in the United States, with millions of vehicles listed for sale from dealerships and private sellers.
+
+AutoTrader allows users to search for cars based on various criteria such as make, model, year, price, mileage, and location. Users can also filter their search results by features such as color, transmission, and fuel type. The website provides detailed information about each vehicle, including photos, features, and vehicle history reports.
+
+One of the benefits of using AutoTrader is that it allows users to compare different vehicles side by side, making it easier to find the right car for their needs and budget. AutoTrader also offers tools and resources to help users make informed decisions, such as pricing information, expert reviews, and financing options.
+
+AutoTrader is free for users to search and browse vehicles, but there may be fees associated with listing a vehicle for sale or using some of the premium services.
+
+Please let me know if you have any other questions or if there's a specific movie or genre you are interested in. I would be happy to help you with that.
+> :quit
+[96mEduBot> [0mHave a nice day!
