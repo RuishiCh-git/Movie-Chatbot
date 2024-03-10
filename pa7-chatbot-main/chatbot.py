@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 import numpy as np
 
 
+
 # noinspection PyMethodMayBeStatic
 class Chatbot:
     """Simple class to implement the chatbot for PA 7."""
