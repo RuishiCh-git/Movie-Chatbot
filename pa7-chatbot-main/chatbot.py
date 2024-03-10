@@ -26,6 +26,7 @@ class Chatbot:
         # movie i by user j
         self.titles, ratings = util.load_ratings('data/ratings.txt')
         self.sentiment = util.load_sentiment_dictionary('data/sentiment.txt')
+        self.movies = util.load_titles('data/movies.txt')
 
         ########################################################################
         # TODO: Binarize the movie ratings matrix.                             #
@@ -193,9 +194,14 @@ class Chatbot:
         :returns: a list of emotions in the text or an empty list if no emotions found.
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
-
-
-        return []
+        emotions = []
+        
+        for word in preprocessed_input: 
+            if word == "!":
+                emotions.append("Surprise")
+            if word == "frustrated":
+                emotions.append("Anger")
+        return emotions
 
     def extract_titles(self, preprocessed_input):
         """Extract potential movie titles from a line of pre-processed text.
@@ -248,6 +254,8 @@ class Chatbot:
         :param title: a string containing a movie title
         :returns: a list of indices of matching movies
         """
+
+
         
         return []
 
