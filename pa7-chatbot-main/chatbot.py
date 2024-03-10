@@ -256,6 +256,18 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: a numerical value for the sentiment of the text
         """
+        # Prior Probability
+        # Count occurrences of 'neg' and 'pos'
+        count_neg = sum(value == 'neg' for value in self.sentiment.values())
+        count_pos = sum(value == 'pos' for value in self.sentiment.values())
+
+        # Calculate total number of values
+        total_values = len(self.sentiment)
+
+        # Calculate percentages
+        percent_neg = (count_neg / total_values)
+        percent_pos = (count_pos / total_values)
+        
         # Train 
 
         for word in preprocessed_input:
