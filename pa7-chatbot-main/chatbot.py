@@ -24,16 +24,16 @@ class Chatbot:
         # This matrix has the following shape: num_movies x num_users
         # The values stored in each row i and column j is the rating for
         # movie i by user j
-        self.titles, ratings = util.load_ratings('data/ratings.txt')
+        self.titles, self.ratings = util.load_ratings('data/ratings.txt')
         self.sentiment = util.load_sentiment_dictionary('data/sentiment.txt')
-
+        self.movies = util.load_titles('data/movies.txt')
         ########################################################################
         # TODO: Binarize the movie ratings matrix.                             #
         ########################################################################
 
         # Binarize the movie ratings before storing the binarized matrix.
-        self.ratings[ratings > 2.5] = 1 
-        self.ratings[ratings <= 2.5] = -1
+        self.ratings[self.ratings > 2.5] = 1 
+        self.ratings[self.ratings <= 2.5] = -1
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
@@ -153,7 +153,7 @@ class Chatbot:
         # your implementation to do any generic preprocessing, feel free to    #
         # leave this method unmodified.                                        #
         ########################################################################
-
+        
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
@@ -254,9 +254,13 @@ class Chatbot:
         :returns: a list of indices of matching movies
         """
 
-
+        matching_movie_indices = []
         
-        return []
+        for index, movie_genre in enumerate(self.title):
+            if title.lower() in movie_genre[0].lower():
+                matching_movie_indices.append(index)
+
+        return matching_movie_indices
 
     def extract_sentiment(self, preprocessed_input):
         """Extract a sentiment rating from a line of pre-processed text.
