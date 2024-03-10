@@ -81,7 +81,7 @@ class Chatbot:
         # TODO: Write a system prompt message for the LLM chatbot              #
         ########################################################################
 
-        system_prompt = """Your name is moviebot. You are a movie recommender chatbot. """ +\
+        system_prompt = """Your name is EduBot. You are a movie recommender chatbot. """ +\
         """You can help users find movies they like and provide information about movies."""
 
         ########################################################################
@@ -267,7 +267,16 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: a numerical value for the sentiment of the text
         """
-        return 0
+        for word in preprocessed_input: 
+            if word in self.sentiment:
+                sentiment_score += self.sentiment[word]
+
+        if sentiment_score > 0:
+            return 1  # Positive sentiment
+        elif sentiment_score < 0:
+            return -1  # Negative sentiment
+        else:
+            return 0  
 
     ############################################################################
     # 3. Movie Recommendation helper functions                                 #
