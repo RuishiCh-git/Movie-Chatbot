@@ -193,6 +193,8 @@ class Chatbot:
         :returns: a list of emotions in the text or an empty list if no emotions found.
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
+
+
         return []
 
     def extract_titles(self, preprocessed_input):
@@ -217,8 +219,16 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: list of movie titles that are potentially in the text
         """
+        movie_titles =  []
+        movie_name = ""
+        for letter in preprocessed_input: 
+            if letter == '"':
+                movie_name += letter
+            if len(movie_name) != 0 and letter == '"':
+                movie_titles.append(movie_name)
+                movie_name = ""
 
-        return []
+        return movie_titles
 
     def find_movies_by_title(self, title):
         """ Given a movie title, return a list of indices of matching movies.
@@ -238,6 +248,7 @@ class Chatbot:
         :param title: a string containing a movie title
         :returns: a list of indices of matching movies
         """
+        
         return []
 
     def extract_sentiment(self, preprocessed_input):
@@ -269,10 +280,10 @@ class Chatbot:
         percent_pos = (count_pos / total_values)
         
         # Train 
-
+        
         for word in preprocessed_input:
-            label = 1 if example.label == 1 else 0
-            self.label_counts[label] += 1
+            label = 1 if self.sentiment[word] == 'pos' else 0
+            self.label_counts['pos'] += 1
             for word in example.words:
                 if self.filter_stop_words and word in self.stop_words:
                     continue
@@ -295,7 +306,7 @@ class Chatbot:
 
         # Classify
         results = []
-        for example in examples:
+        for word in preprocessed_input:
             # calculate the log prior probability for each class
             score = {label: np.log(self.label_counts[label] / self.total_examples) for label in ["aid", "not"]}
             # score each word through the addition of log word probability (if the word is in voca)
@@ -305,7 +316,7 @@ class Chatbot:
                         score[label] += np.log(self.word_probs[label][word])
             # making predictions
             if return_scores:
-                results.append(score["aid"])
+                results.append(score["pos"])
             else:
                 results.append(1 if score["aid"] > score["not"] else 0)
         return results
