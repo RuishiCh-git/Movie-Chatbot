@@ -248,8 +248,13 @@ class Chatbot:
         :param title: a string containing a movie title
         :returns: a list of indices of matching movies
         """
+        matching_movie_indices = []
         
-        return []
+        for index, movie_genre in enumerate(self.title):
+            if title.lower() in movie_genre[0].lower():
+                matching_movie_indices.append(index)
+
+        return matching_movie_indices
 
     def extract_sentiment(self, preprocessed_input):
         """Extract a sentiment rating from a line of pre-processed text.
