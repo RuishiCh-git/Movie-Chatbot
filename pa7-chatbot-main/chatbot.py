@@ -47,7 +47,7 @@ class Chatbot:
         # TODO: Hello people!                                                  #
         ########################################################################
 
-        greeting_message = "Hi!"
+        greeting_message = "Hi! I am a MovieBot!"
 
         ########################################################################
         #                             END OF YOUR CODE                         #
