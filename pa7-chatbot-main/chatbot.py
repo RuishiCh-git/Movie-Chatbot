@@ -44,7 +44,7 @@ class Chatbot:
     def greeting(self):
         """Return a message that the chatbot uses to greet the user."""
         ########################################################################
-        # TODO: Write a short greeting message                                 #
+        # TODO: Hello people!                                                  #
         ########################################################################
 
         greeting_message = "How can I help you?"
