@@ -267,17 +267,52 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: a numerical value for the sentiment of the text
         """
-        for word in preprocessed_input: 
-            if word in self.sentiment:
-                sentiment_score += self.sentiment[word]
+        # Train 
 
-        if sentiment_score > 0:
-            return 1  # Positive sentiment
-        elif sentiment_score < 0:
-            return -1  # Negative sentiment
-        else:
-            return 0  
+        for word in preprocessed_input:
+            label = 1 if example.label == 1 else 0
+            self.label_counts[label] += 1
+            for word in example.words:
+                if self.filter_stop_words and word in self.stop_words:
+                    continue
+                self.vocab.add(word)
+                if word in self.word_counts[label]:
+                    self.word_counts[label][word] += 1
+                else:
+                    self.word_counts[label][word] = 1
+        
+        # count the total number of documents in the training set
+        self.total_examples = sum(self.label_counts.values())
+        # count the total number of words in each label
+        self.total_words = {label: sum(self.word_counts[label].values()) for label in ["aid", "not"]}
+        # calculate the probability for each word using Laplace (add-1) smoothing
+        self.word_probs = {label: 
+                           {word: 
+                            (self.word_counts[label].get(word, 0) + 1) / (self.total_words[label] + len(self.vocab)) 
+                            for word in self.vocab} 
+                           for label in ["aid", "not"]}
 
+        # Classify
+        results = []
+        for example in examples:
+            # calculate the log prior probability for each class
+            score = {label: np.log(self.label_counts[label] / self.total_examples) for label in ["aid", "not"]}
+            # score each word through the addition of log word probability (if the word is in voca)
+            for word in example.words:
+                if word in self.vocab:
+                    for label in ["aid", "not"]:
+                        score[label] += np.log(self.word_probs[label][word])
+            # making predictions
+            if return_scores:
+                results.append(score["aid"])
+            else:
+                results.append(1 if score["aid"] > score["not"] else 0)
+        return results
+    
+
+
+
+        return 0 
     ############################################################################
     # 3. Movie Recommendation helper functions                                 #
     ############################################################################
