@@ -24,16 +24,16 @@ class Chatbot:
         # This matrix has the following shape: num_movies x num_users
         # The values stored in each row i and column j is the rating for
         # movie i by user j
-        self.titles, ratings = util.load_ratings('data/ratings.txt')
+        self.titles, self.ratings = util.load_ratings('data/ratings.txt')
         self.sentiment = util.load_sentiment_dictionary('data/sentiment.txt')
-
+        self.movies = util.load_titles('data/movies.txt')
         ########################################################################
         # TODO: Binarize the movie ratings matrix.                             #
         ########################################################################
 
         # Binarize the movie ratings before storing the binarized matrix.
-        self.ratings[ratings > 2.5] = 1 
-        self.ratings[ratings <= 2.5] = -1
+        self.ratings[self.ratings > 2.5] = 1 
+        self.ratings[self.ratings <= 2.5] = -1
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
@@ -153,7 +153,7 @@ class Chatbot:
         # your implementation to do any generic preprocessing, feel free to    #
         # leave this method unmodified.                                        #
         ########################################################################
-
+        
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
@@ -193,7 +193,7 @@ class Chatbot:
         :returns: a list of emotions in the text or an empty list if no emotions found.
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
-
+        
 
         return []
 
@@ -422,4 +422,6 @@ class Chatbot:
 if __name__ == '__main__':
     print('To run your chatbot in an interactive loop from the command line, '
           'run:')
-    print('    python3 repl.py')
+    # chatbot = Chatbot()
+    # print(chatbot.movies[0])
+    # print('    python3 repl.py')
