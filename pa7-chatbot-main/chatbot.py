@@ -389,13 +389,40 @@ class Chatbot:
         # For GUS mode, you should use item-item collaborative filtering with  #
         # cosine similarity, no mean-centering, and no normalization of        #
         # scores.                                                              #
+
         ########################################################################
 
-        # Populate this list with k movie indices to recommend to the user.
-        for i in range(len(ratings_matrix)):
-            return 0
+        sim_matrix = {}
 
-        recommendations = []
+        # Populate this list with k movie indices to recommend to the user.
+        for i in range(len(self.ratings)):
+            for j in range(i+1,len(self.ratings)):
+                sim_matrix[[i,j]] = self.similarity(self.ratings[i], self.ratings[j])
+
+        known_index = []
+        unknown_index = []
+        for i in range(len(user_ratings)):
+            if user_ratings[i] == 0:
+                unknown_index.append(i)
+            else:
+                known_index.append(i)
+        
+        scores_dic = {}
+        for index in unknown_index: 
+            score = 0 
+
+            for i in known_index: 
+                sim_score = sim_matrix[[index, i]]
+                weighted_score = sim_score * user_ratings[i]
+                score += weighted_score 
+            scores_dic[index] = score
+        
+        return [key for key, value in sorted(scores_dic.items(), key=lambda item: item[1], reverse=True)[:k]]
+
+    
+            
+        
+                
 
 
 
