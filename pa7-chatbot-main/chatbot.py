@@ -193,6 +193,8 @@ class Chatbot:
         :returns: a list of emotions in the text or an empty list if no emotions found.
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
+
+
         return []
 
     def extract_titles(self, preprocessed_input):
@@ -217,7 +219,16 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: list of movie titles that are potentially in the text
         """
-        return []
+        movie_titles =  []
+        movie_name = ""
+        for letter in preprocessed_input: 
+            if letter == '"':
+                movie_name += letter
+            if len(movie_name) != 0 and letter == '"':
+                movie_titles.append(movie_name)
+                movie_name = ""
+
+        return movie_titles
 
     def find_movies_by_title(self, title):
         """ Given a movie title, return a list of indices of matching movies.
@@ -237,6 +248,7 @@ class Chatbot:
         :param title: a string containing a movie title
         :returns: a list of indices of matching movies
         """
+        
         return []
 
     def extract_sentiment(self, preprocessed_input):
