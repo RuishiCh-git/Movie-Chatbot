@@ -33,6 +33,9 @@ class Chatbot:
 
         # Binarize the movie ratings before storing the binarized matrix.
         self.ratings = ratings
+        self.ratings = np.where(ratings > 2.5, 1, np.where(ratings <= 2.5, -1, 0))
+        if np.isnan(ratings).any():
+            self.ratings = np.nan_to_num(self.ratings, nan=0)
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
