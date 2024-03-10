@@ -81,7 +81,7 @@ class Chatbot:
         # TODO: Write a system prompt message for the LLM chatbot              #
         ########################################################################
 
-        system_prompt = """Your name is moviebot. You are a movie recommender chatbot. """ +\
+        system_prompt = """Your name is EduBot. You are a movie recommender chatbot. """ +\
         """You can help users find movies they like and provide information about movies."""
 
         ########################################################################
