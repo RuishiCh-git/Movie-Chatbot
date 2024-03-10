@@ -217,6 +217,7 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: list of movie titles that are potentially in the text
         """
+
         return []
 
     def find_movies_by_title(self, title):
@@ -255,7 +256,16 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: a numerical value for the sentiment of the text
         """
-        return 0
+        for word in preprocessed_input: 
+            if word in self.sentiment:
+                sentiment_score += self.sentiment[word]
+
+        if sentiment_score > 0:
+            return 1  # Positive sentiment
+        elif sentiment_score < 0:
+            return -1  # Negative sentiment
+        else:
+            return 0  
 
     ############################################################################
     # 3. Movie Recommendation helper functions                                 #
