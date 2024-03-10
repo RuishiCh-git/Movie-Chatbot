@@ -31,9 +31,7 @@ class Chatbot:
         # TODO: Binarize the movie ratings matrix.                             #
         ########################################################################
 
-        # Binarize the movie ratings before storing the binarized matrix.
-        self.ratings[self.ratings > 2.5] = 1 
-        self.ratings[self.ratings <= 2.5] = -1
+        self.ratings = self.binarize(self.ratings)
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
@@ -325,7 +323,7 @@ class Chatbot:
 
         # The starter code returns a new matrix shaped like ratings but full of
         # zeros.
-        binarized_ratings = (np.ratings > 2.5).astype(int)
+        binarized_ratings = np.where(ratings == 0,0,np.where(ratings > threshold, 1, -1))
 
         ########################################################################
         #                        END OF YOUR CODE                              #
@@ -394,7 +392,12 @@ class Chatbot:
         ########################################################################
 
         # Populate this list with k movie indices to recommend to the user.
+        for i in range(len(ratings_matrix)):
+            return 0
+
         recommendations = []
+
+
 
         ########################################################################
         #                        END OF YOUR CODE                              #
@@ -440,6 +443,6 @@ if __name__ == '__main__':
     print('To run your chatbot in an interactive loop from the command line, '
           'run:')
     chatbot = Chatbot()
-    print(chatbot.sentiment)
+    print(chatbot.ratings[10])
     # print( 'hi')
     print('    python3 repl.py')
