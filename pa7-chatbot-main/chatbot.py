@@ -8,6 +8,7 @@ import util
 from pydantic import BaseModel, Field
 
 import numpy as np
+import re
 
 
 
@@ -223,14 +224,8 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: list of movie titles that are potentially in the text
         """
-        movie_titles =  []
-        movie_name = ""
-        for letter in preprocessed_input: 
-            if letter == '"':
-                movie_name += letter
-            if len(movie_name) != 0 and letter == '"':
-                movie_titles.append(movie_name)
-                movie_name = ""
+        pattern = r'"(.*?)"'
+        movie_titles = re.findall(pattern, preprocessed_input)
 
         return movie_titles
 
