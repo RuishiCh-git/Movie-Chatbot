@@ -255,7 +255,7 @@ class Chatbot:
 
         matching_movie_indices = []
         
-        for index, movie_genre in enumerate(self.title):
+        for index, movie_genre in enumerate(self.titles):
             if title.lower() in movie_genre[0].lower():
                 matching_movie_indices.append(index)
 
@@ -396,9 +396,9 @@ class Chatbot:
         sim_matrix = {}
 
         # Populate this list with k movie indices to recommend to the user.
-        for i in range(len(self.ratings)):
-            for j in range(i+1,len(self.ratings)):
-                sim_matrix[[i,j]] = self.similarity(self.ratings[i], self.ratings[j])
+        for i in range(len(ratings_matrix)):
+            for j in range(i+1,len(ratings_matrix)):
+                sim_matrix[[i,j]] = self.similarity(ratings_matrix[i], ratings_matrix[j])
 
         known_index = []
         unknown_index = []
