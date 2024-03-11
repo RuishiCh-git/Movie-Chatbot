@@ -398,7 +398,7 @@ class Chatbot:
         # Populate this list with k movie indices to recommend to the user.
         for i in range(len(ratings_matrix)):
             for j in range(i+1,len(ratings_matrix)):
-                sim_matrix[[i,j]] = self.similarity(ratings_matrix[i], ratings_matrix[j])
+                sim_matrix[(i,j)] = self.similarity(ratings_matrix[i], ratings_matrix[j])
 
         known_index = []
         unknown_index = []
@@ -413,7 +413,10 @@ class Chatbot:
             score = 0 
 
             for i in known_index: 
-                sim_score = sim_matrix[[index, i]]
+                if index < i: 
+                    sim_score = sim_matrix[(index, i)]
+                else: 
+                    sim_score = sim_matrix[(i, index)]
                 weighted_score = sim_score * user_ratings[i]
                 score += weighted_score 
             scores_dic[index] = score
