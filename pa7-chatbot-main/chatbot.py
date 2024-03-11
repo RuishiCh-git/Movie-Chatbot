@@ -26,14 +26,14 @@ class Chatbot:
         # This matrix has the following shape: num_movies x num_users
         # The values stored in each row i and column j is the rating for
         # movie i by user j
-        self.titles, ratings = util.load_ratings('data/ratings.txt')
+        self.titles, self.ratings = util.load_ratings('data/ratings.txt')
         self.sentiment = util.load_sentiment_dictionary('data/sentiment.txt')
         self.movies = util.load_titles('data/movies.txt')
         ########################################################################
         # TODO: Binarize the movie ratings matrix.                             #
         ########################################################################
 
-        ratings = self.binarize(ratings)
+        self.ratings = self.binarize(self.ratings)
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
