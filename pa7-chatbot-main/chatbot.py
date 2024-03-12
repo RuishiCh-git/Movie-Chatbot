@@ -299,17 +299,28 @@ class Chatbot:
         """
         # Train 
         sentiment_score = 0
-        for word in preprocessed_input:
-            if word in self.sentiment:
-                if self.sentiment[word] == 'pos':
-                    sentiment_score += 1
+        words = preprocessed_input.split()
+
+        negation_words = [
+        "not", "never", "none", "nobody", "nothing", "neither", "nowhere", 
+        "isn't", "aren't", "wasn't", "weren't", "don't", "doesn't", "didn't", 
+        "can't", "couldn't", "shouldn't", "won't", "wouldn't", "haven't", 
+        "hasn't", "hadn't", "no","never"]
+        negation = False # give the negation a flag
+
+        for word in words:
+            if word.lower() in negation_words:  # in the negation list
+                negation = True
+            elif word.lower() in self.sentiment:
+                if self.sentiment[word.lower()] == 'pos':
+                    sentiment_score += -1 if negation else 1
                 else: 
-                    sentiment_score -= 1
+                    sentiment_score += 1 if negation else -1
     
         if sentiment_score > 0:
-            return 1  # Positive sentiment
+            return 1  
         elif sentiment_score < 0:
-            return -1  # Negative sentiment
+            return -1 
         else:
             return 0 
     
