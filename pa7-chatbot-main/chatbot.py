@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 import numpy as np
 import re
 
+from porter_stemmer import PorterStemmer
+
 
 
 # noinspection PyMethodMayBeStatic
@@ -297,32 +299,51 @@ class Chatbot:
         pre-processed with preprocess()
         :returns: a numerical value for the sentiment of the text
         """
-        # Train 
-        sentiment_score = 0
-        words = preprocessed_input.split()
+        stemmer = PorterStemmer()
+
+        #creat a new sentiment dictionary with stemmed keys
+        stemmed_sentiment_dic = {}
+        for key in self.sentiment: 
+            sentiment = self.sentiment[key]
+            stemmed_key = stemmer.stem(key)
+            stemmed_sentiment_dic[stemmed_key] = sentiment
+
+        #clean the input 
+        first_quotation_index = preprocessed_input.find('"')
+        second_quotation_index = preprocessed_input.rfind('"')
+        processed_input = preprocessed_input[:first_quotation_index] + preprocessed_input[second_quotation_index+1:]
+        
 
         negation_words = [
         "not", "never", "none", "nobody", "nothing", "neither", "nowhere", 
         "isn't", "aren't", "wasn't", "weren't", "don't", "doesn't", "didn't", 
         "can't", "couldn't", "shouldn't", "won't", "wouldn't", "haven't", 
         "hasn't", "hadn't", "no","never"]
-        negation = False # give the negation a flag
 
-        for word in words:
-            if word.lower() in negation_words:  # in the negation list
-                negation = True
-            elif word.lower() in self.sentiment:
-                if self.sentiment[word.lower()] == 'pos':
-                    sentiment_score += -1 if negation else 1
-                else: 
-                    sentiment_score += 1 if negation else -1
+        sentiment_score = 0
+        negation = 1 # give the negation a flag
+        words = processed_input.split()
     
-        if sentiment_score > 0:
-            return 1  
-        elif sentiment_score < 0:
-            return -1 
+        for word in words:
+            word = stemmer.stem(word)
+        
+            if word.lower() in negation_words:  # in the negation list
+                negation = -1
+            elif word.lower() in stemmed_sentiment_dic:
+                sentiment = stemmed_sentiment_dic[word.lower()]
+                if sentiment == 'pos':
+                    # print(word + ": " +self.sentiment[word])
+                    sentiment_score += (1*negation)
+                    # print(sentiment_score)
+                else: 
+                    sentiment_score -= (1*negation)
+
+        if sentiment_score > 0: 
+            return 1
+        elif sentiment_score < 0: 
+            return -1
         else:
-            return 0 
+            return 0
     
     ############################################################################
     # 3. Movie Recommendation helper functions                                 #
@@ -477,7 +498,8 @@ class Chatbot:
         NOTE: Pass the debug information that you may think is important for
         your evaluators.
         """
-        debug_info = None
+        debug_info = self.extract_sentiment(line)
+        # print(self.sentiment)
 
         return debug_info
 
@@ -505,6 +527,6 @@ class Chatbot:
 if __name__ == '__main__':
     print('To run your chatbot in an interactive loop from the command line, '
           'run:')
-    # chatbot = Chatbot()
-    # print(chatbot.debug('Titanic (1997)'))
+    chatbot = Chatbot()
+    print(chatbot.debug('I really enjoyed "Titanic (1997)".'))
     print('python3 repl.py')
