@@ -276,11 +276,10 @@ class Chatbot:
         sentiment_score = 0
         words = preprocessed_input.split()
 
-        negation_words = [
-        "not", "never", "none", "nobody", "nothing", "neither", "nowhere", 
+        negation_words = ["not", "never", "none", "nobody", 
         "isn't", "aren't", "wasn't", "weren't", "don't", "doesn't", "didn't", 
         "can't", "couldn't", "shouldn't", "won't", "wouldn't", "haven't", 
-        "hasn't", "hadn't", "no","never"]
+        "hasn't", "hadn't", "no"]
         negation = False # give the negation a flag
 
         for word in words:
@@ -355,7 +354,10 @@ class Chatbot:
         dot_product = np.dot(u, v)
         norm_u = np.linalg.norm(u)
         norm_v = np.linalg.norm(v)
-        similarity = dot_product / (norm_u * norm_v)
+        if norm_u == 0 or norm_v == 0:
+            return 0
+        else:
+            similarity = dot_product / (norm_u * norm_v)
 
         ########################################################################
         #                          END OF YOUR CODE                            #
@@ -431,10 +433,6 @@ class Chatbot:
 
     
             
-        
-                
-
-
 
         ########################################################################
         #                        END OF YOUR CODE                              #
