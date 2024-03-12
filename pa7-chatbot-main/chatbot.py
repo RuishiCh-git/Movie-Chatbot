@@ -248,12 +248,37 @@ class Chatbot:
         :returns: a list of indices of matching movies
         """
 
-        matching_movie_indices = []
-        
-        for index, movie_genre in enumerate(self.titles):
-            if title.lower() in movie_genre[0].lower():
-                matching_movie_indices.append(index)
+        articles = {"A", "An", "The"}
 
+        words = title.split()
+
+        #process input if it starts with an article
+        if words[0] in articles: 
+            title_article = words[0]
+            title = " ".join(words[1:])
+
+        matching_movie_indices = []
+       
+
+        for i in range(len(self.titles)):
+            movie_info = self.titles[i]
+            movie_name = movie_info[0][:-7]
+            movie_year = movie_info[0][-6:]
+
+            words = movie_name.split()
+            #if movie name from self.titles ends with an optional article
+            if words[-1] in articles:
+                # print("movie name " + movie_name+" has an ending article")
+                # print(words[-1])
+                movie_article = words[-1]
+                last_comma_index = movie_name.rfind(',')
+                movie_name = movie_name[:last_comma_index]
+                if movie_name == title or movie_name + ' ' + movie_year == title:
+                    if title_article and title_article == movie_article:
+                        matching_movie_indices.append(i)
+            else:
+                if movie_name == title or movie_name + ' ' + movie_year == title:
+                    matching_movie_indices.append(i)
         return matching_movie_indices
 
     def extract_sentiment(self, preprocessed_input):
@@ -450,7 +475,8 @@ class Chatbot:
         NOTE: Pass the debug information that you may think is important for
         your evaluators.
         """
-        debug_info = 'debug info'
+        debug_info = None
+
         return debug_info
 
     ############################################################################
@@ -478,4 +504,5 @@ if __name__ == '__main__':
     print('To run your chatbot in an interactive loop from the command line, '
           'run:')
     # chatbot = Chatbot()
+    # print(chatbot.debug('Titanic (1997)'))
     print('python3 repl.py')
