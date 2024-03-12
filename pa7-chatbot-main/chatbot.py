@@ -454,10 +454,8 @@ class Chatbot:
                 score += weighted_score 
             scores_dic[index] = score
         
-        return [key for key, value in sorted(scores_dic.items(), key=lambda item: item[1], reverse=True)[:k]]
+        recommendations = [key for key, value in sorted(scores_dic.items(), key=lambda item: item[1], reverse=True)[:k]]
 
-    
-            
 
         ########################################################################
         #                        END OF YOUR CODE                              #
