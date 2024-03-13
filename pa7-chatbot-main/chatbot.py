@@ -469,8 +469,7 @@ class Chatbot:
                 scores_dic[movie_index] += similarity_score*user_ratings[movie_index2]
        
         recommendations = [key for key, value in sorted(scores_dic.items(), key=lambda item: item[1], reverse=True)[:k]]
-        # print('bruh')
-        # print(recommendations)
+       
         ########################################################################
         #                        END OF YOUR CODE                              #
         ########################################################################
