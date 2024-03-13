@@ -166,7 +166,7 @@ class Chatbot:
                         f"I can't find any information on the movie you mentioned. Do you have any other favorites?",
                         f"The movie you mentioned is not in my current list. Maybe you can introduce me to it, or we can find a different film you like.",
                     ]
-                    return f"I'm sorry. I wasn't able to find this movie in my database. Please tell me about a different movie you have seen."
+                    return random.choice(response_unknown_choices)
                 elif len(matching_movies) == 1:
                     self.movies_count += 1
                     if sentiment == 1: 
