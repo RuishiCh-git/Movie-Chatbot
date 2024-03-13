@@ -31,11 +31,13 @@ class Chatbot:
         self.titles, self.ratings = util.load_ratings('data/ratings.txt')
         self.sentiment = util.load_sentiment_dictionary('data/sentiment.txt')
         self.movies = util.load_titles('data/movies.txt')
+        self.movies_count = 0
         ########################################################################
         # TODO: Binarize the movie ratings matrix.                             #
         ########################################################################
 
         self.ratings = self.binarize(self.ratings)
+        self.user_ratings = np.zeros(len(self.ratings))
         ########################################################################
         #                             END OF YOUR CODE                         #
         ########################################################################
@@ -50,7 +52,7 @@ class Chatbot:
         # TODO: Hello people!                                                  #
         ########################################################################
 
-        greeting_message = "Hi! I am an EduBot. How may I help you!"
+        greeting_message = "Hi! I am an EduBot. I'm going to recommend movies to you. First I'm going to ask you about your taste in movies. Tell me about a movie that you have seen."
 
         ########################################################################
         #                             END OF YOUR CODE                         #
@@ -101,7 +103,7 @@ class Chatbot:
     ############################################################################
     # 2. Modules 2 and 3: extraction and transformation                        #
     ############################################################################
-
+    
     def process(self, line):
         """Process a line of input from the REPL and generate a response.
 
@@ -132,57 +134,104 @@ class Chatbot:
         #     response = "I processed {} in LLM Programming mode!!".format(line)
         # else:
         #     response = "I processed {} in Starter (GUS) mode!!".format(line)
-        preprocessed_input = self.preprocess(line)
-
-        titles = self.extract_titles(preprocessed_input)
-
-        movie_indices = []
-        
-        # Attempt to find movie indices for each extracted title
-        for title in titles:
-            indices = self.find_movies_by_title(title)
-            if indices:  # Only add indices if the list is not empty
-                movie_indices.extend(indices)
-
-        emotions = self.extract_emotion(preprocessed_input)
-        sentiment = self.extract_sentiment(preprocessed_input)
-        binary_sentiment = self.binarize(sentiment, threshold=0) 
-        
-        # Initialize response
+        # 
         response = ""
-        
-        if titles:
-            # If movie indices were found in the database
-            if movie_indices:
-                # If sentiment is positive or there are emotions suggesting a recommendation
-                if binary_sentiment > 0 or 'Happiness' in emotions:
-                    # Recommend a movie based on the indices
-                    recommendations = self.recommend(user_ratings, ratings_matrix, k=10, llm_enabled=False)  # Assuming recommend method exists
-                    response = f"Since you liked {titles[0]}, you might also enjoy {recommendations[0]}. "
-                elif binary_sentiment < 0:
-                    # Handle negative sentiment
-                    response = f"I'm sorry you didn't enjoy {titles[0]}. "
-                else:
-                    # Handle neutral sentiment
-                    response = f"You mentioned {titles[0]}. Could you tell me more about what kinds of movies you like? "
-            else:
-                # No matching movies found in the database
-                response = f"Sorry, I've never heard of '{titles[0]}'. Could you tell me about another movie you like? "
-        
-        if emotions:
-            emotion_response = " and ".join(emotions)
-            response += f"It seems you're feeling {emotion_response}. "
 
-        # Continue the conversation by asking if they want another recommendation
-        if response.endswith("? "):
-            response += "Or would you like a movie recommendation?"
-        else:
-            response += "Would you like another recommendation?"
+        emotions = self.extract_emotion(line)
+        movies = self.extract_titles(line)
+        sentiment = self.extract_sentiment(line)
         
-        # Add an emotional response if emotions were detected
-        if emotions:
-            emotional_response = " and ".join(emotions)
-            response += f"It seems you're feeling {emotional_response}. "
+        
+        if len(movies) > 1: 
+            return "I'm sorry. Please tell me about one movie at a time."
+        elif len(movies) == 0:
+            return "Sorry I don't understand. Please tell me about a movie you have seen."
+        else: 
+            movie = movies[0]
+            if sentiment == 0: 
+                return f"I'm sorry. I'm not quite sure if you liked {movies[0]}. \n Tell me more about {movies[0]}."
+            else:
+                matching_movies = self.find_movies_by_title(movie)
+                if len(matching_movies) == 0: 
+                    return f"I'm sorry. I wasn't able to find this movie in my database. Please tell me about a different movie you have seen."
+                elif len(matching_movies) == 1:
+                    self.movies_count += 1
+                    if sentiment == 1: 
+                        response += f"I'm glad you liked {movies[0]}. \n"
+                    else: 
+                        response += f"I'm sorry you didn't like {movies[0]}. \n"
+                    self.user_ratings[matching_movies[0]] = sentiment
+                else: 
+                    movie_names = []
+                    for movie_index in matching_movies:
+                        movie = self.movies[movie_index]
+                        movie_names.append(movie)
+                    movie_list_str = " or ".join(movie_names)
+                    return f"There are {len(matching_movies)} movies referring to {movie} that I found in my database. Which one did you watch? {movie_list_str}?"
+        
+        if self.movies_count < 5:
+            response += "\t Tell me about another movie you have seen."
+        else:
+            movies_to_recommend = self.recommend(self.user_ratings, self.ratings)
+            movie_1 = self.movies[movies_to_recommend[0]][0]
+            
+            return f'Based on your past movie watching experiences, I suggest you watch "{movie_1}".'
+        
+        if self.llm_enabled: 
+            return response 
+        else: 
+            return response
+        # preprocessed_input = self.preprocess(line)
+
+        # titles = self.extract_titles(preprocessed_input)
+
+        # movie_indices = []
+        
+        # # Attempt to find movie indices for each extracted title
+        # for title in titles:
+        #     indices = self.find_movies_by_title(title)
+        #     if indices:  # Only add indices if the list is not empty
+        #         movie_indices.extend(indices)
+
+        # emotions = self.extract_emotion(preprocessed_input)
+        # sentiment = self.extract_sentiment(preprocessed_input)
+        # binary_sentiment = self.binarize(sentiment, threshold=0) 
+        
+        # # Initialize response
+        # response = ""
+        
+        # if titles:
+        #     # If movie indices were found in the database
+        #     if movie_indices:
+        #         # If sentiment is positive or there are emotions suggesting a recommendation
+        #         if binary_sentiment > 0 or 'Happiness' in emotions:
+        #             # Recommend a movie based on the indices
+        #             recommendations = self.recommend(user_ratings, ratings_matrix, k=10, llm_enabled=False)  # Assuming recommend method exists
+        #             response = f"Since you liked {titles[0]}, you might also enjoy {recommendations[0]}. "
+        #         elif binary_sentiment < 0:
+        #             # Handle negative sentiment
+        #             response = f"I'm sorry you didn't enjoy {titles[0]}. "
+        #         else:
+        #             # Handle neutral sentiment
+        #             response = f"You mentioned {titles[0]}. Could you tell me more about what kinds of movies you like? "
+        #     else:
+        #         # No matching movies found in the database
+        #         response = f"Sorry, I've never heard of '{titles[0]}'. Could you tell me about another movie you like? "
+        
+        # if emotions:
+        #     emotion_response = " and ".join(emotions)
+        #     response += f"It seems you're feeling {emotion_response}. "
+
+        # # Continue the conversation by asking if they want another recommendation
+        # if response.endswith("? "):
+        #     response += "Or would you like a movie recommendation?"
+        # else:
+        #     response += "Would you like another recommendation?"
+        
+        # # Add an emotional response if emotions were detected
+        # if emotions:
+        #     emotional_response = " and ".join(emotions)
+        #     response += f"It seems you're feeling {emotional_response}. "
 
 
         ########################################################################
