@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 
 import numpy as np
 import re
-
+import random
 from porter_stemmer import PorterStemmer
 
 
@@ -149,17 +149,40 @@ class Chatbot:
         else: 
             movie = movies[0]
             if sentiment == 0: 
-                return f"I'm sorry. I'm not quite sure if you liked {movies[0]}. \n Tell me more about {movies[0]}."
+                response_choices_natural = [
+                f"Okay, you've seen {movies[0]}. How did you feel about it?",
+                f"So, {movies[0]} was just okay for you? What kind of movies usually excite you?",
+                f"{movies[0]} seems to have left you with mixed feelings. What would you say is your favorite movie genre?",
+                f"I'm sorry. I'm not quite sure if you liked {movies[0]}. \n Tell me more about {movies[0]}."
+                ]
+                return random.choice(response_choices_natural)
             else:
                 matching_movies = self.find_movies_by_title(movie)
                 if len(matching_movies) == 0: 
+                    response_unknown_choices = [
+                        f"Hmm, I'm not familiar with the movie you mentioned. Could you tell me about another movie you've seen?",
+                        f"I don't seem to have movie you mentioned in my database. What's another movie you like?",
+                        f"The movie you mentioned doesn't ring a bell. Let's try another one, what else do you enjoy watching?",
+                        f"I can't find any information on the movie you mentioned. Do you have any other favorites?",
+                        f"The movie you mentioned is not in my current list. Maybe you can introduce me to it, or we can find a different film you like.",
+                    ]
                     return f"I'm sorry. I wasn't able to find this movie in my database. Please tell me about a different movie you have seen."
                 elif len(matching_movies) == 1:
                     self.movies_count += 1
                     if sentiment == 1: 
-                        response += f"I'm glad you liked {movies[0]}. \n"
-                    else: 
-                        response += f"I'm sorry you didn't like {movies[0]}. \n"
+                        responses_choice_like = [
+                                f"I'm sorry to hear that {movies[0]} wasn't to your taste. \n",
+                                f"Oh no, it sounds like {movies[0]} wasn't quite what you were looking for. \n",
+                                f"That's unfortunate about {movies[0]}. I can help you find something else. \n",
+                                f"Not a fan of {movies[0]}, huh? Let's try to find a better match. \n",
+                                f"It's a bummer you didn't enjoy {movies[0]}. There are plenty of other movies to explore! \n",]
+                        response += random.choice(responses_choice_like)
+                    else:
+                        responses_choice_dislike = [
+                            f"I see, {movies[0]} wasn't your cup of tea. Let's find something you might enjoy more.",
+                            f"Got it, {movies[0]} didn't quite hit the mark for you. I'm here to help you find a better choice.",
+                            f"Understood, {movies[0]} wasn't to your liking. I'm sure there's a movie out there that you'll love!"] 
+                        response += random.choice(responses_choice_dislike)
                     self.user_ratings[matching_movies[0]] = sentiment
                 else: 
                     movie_names = []
@@ -181,63 +204,11 @@ class Chatbot:
             return response 
         else: 
             return response
-        # preprocessed_input = self.preprocess(line)
-
-        # titles = self.extract_titles(preprocessed_input)
-
-        # movie_indices = []
-        
-        # # Attempt to find movie indices for each extracted title
-        # for title in titles:
-        #     indices = self.find_movies_by_title(title)
-        #     if indices:  # Only add indices if the list is not empty
-        #         movie_indices.extend(indices)
-
-        # emotions = self.extract_emotion(preprocessed_input)
-        # sentiment = self.extract_sentiment(preprocessed_input)
-        # binary_sentiment = self.binarize(sentiment, threshold=0) 
-        
-        # # Initialize response
-        # response = ""
-        
-        # if titles:
-        #     # If movie indices were found in the database
-        #     if movie_indices:
-        #         # If sentiment is positive or there are emotions suggesting a recommendation
-        #         if binary_sentiment > 0 or 'Happiness' in emotions:
-        #             # Recommend a movie based on the indices
-        #             recommendations = self.recommend(user_ratings, ratings_matrix, k=10, llm_enabled=False)  # Assuming recommend method exists
-        #             response = f"Since you liked {titles[0]}, you might also enjoy {recommendations[0]}. "
-        #         elif binary_sentiment < 0:
-        #             # Handle negative sentiment
-        #             response = f"I'm sorry you didn't enjoy {titles[0]}. "
-        #         else:
-        #             # Handle neutral sentiment
-        #             response = f"You mentioned {titles[0]}. Could you tell me more about what kinds of movies you like? "
-        #     else:
-        #         # No matching movies found in the database
-        #         response = f"Sorry, I've never heard of '{titles[0]}'. Could you tell me about another movie you like? "
-        
-        # if emotions:
-        #     emotion_response = " and ".join(emotions)
-        #     response += f"It seems you're feeling {emotion_response}. "
-
-        # # Continue the conversation by asking if they want another recommendation
-        # if response.endswith("? "):
-        #     response += "Or would you like a movie recommendation?"
-        # else:
-        #     response += "Would you like another recommendation?"
-        
-        # # Add an emotional response if emotions were detected
-        # if emotions:
-        #     emotional_response = " and ".join(emotions)
-        #     response += f"It seems you're feeling {emotional_response}. "
 
 
         ########################################################################
         #                          END OF YOUR CODE                            #
         ########################################################################
-        return response
 
     @staticmethod
     def preprocess(text):
