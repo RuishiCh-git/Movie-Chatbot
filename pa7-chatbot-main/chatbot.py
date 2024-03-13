@@ -67,7 +67,7 @@ class Chatbot:
         # TODO: Write a short farewell message                                 #
         ########################################################################
 
-        goodbye_message = "I hope you will have a wonderful day!"
+        goodbye_message = "Goodbye. I hope you will have a wonderful day!"
 
         ########################################################################
         #                          END OF YOUR CODE                            #
@@ -175,7 +175,7 @@ class Chatbot:
             movies_to_recommend = self.recommend(self.user_ratings, self.ratings)
             movie_1 = self.movies[movies_to_recommend[0]][0]
             
-            return f'Based on your past movie watching experiences, I suggest you watch "{movie_1}".'
+            return f'Based on your past movie watching experiences, I suggest you watch "{movie_1[:-7]}".'
         
         if self.llm_enabled: 
             return response 
@@ -395,7 +395,7 @@ class Chatbot:
         articles = {"A", "An", "The"}
 
         words = title.split()
-
+        title_article = None
         #process input if it starts with an article
         if words[0] in articles: 
             title_article = words[0]
@@ -418,7 +418,10 @@ class Chatbot:
                 last_comma_index = movie_name.rfind(',')
                 movie_name = movie_name[:last_comma_index]
                 if movie_name == title or movie_name + ' ' + movie_year == title:
-                    if title_article and title_article == movie_article:
+                    if title_article:
+                        if title_article == movie_article:
+                            matching_movie_indices.append(i)
+                    else:
                         matching_movie_indices.append(i)
             else:
                 if movie_name == title or movie_name + ' ' + movie_year == title:
