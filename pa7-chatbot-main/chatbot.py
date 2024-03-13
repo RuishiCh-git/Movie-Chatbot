@@ -396,10 +396,14 @@ class Chatbot:
         # TODO: Compute cosine similarity between the two vectors.             #
         ########################################################################
         similarity = 0
-        
+        if len(u) != len(v):
+            return "Error: u, v of different dimensions"
+   
         dot_product = np.dot(u, v)
+
         norm_u = np.linalg.norm(u)
         norm_v = np.linalg.norm(v)
+
         if norm_u == 0 or norm_v == 0:
             return 0
         else:
@@ -447,37 +451,26 @@ class Chatbot:
 
         ########################################################################
 
-        sim_matrix = {}
-
-        # Populate this list with k movie indices to recommend to the user.
-        for i in range(len(ratings_matrix)):
-            for j in range(i+1,len(ratings_matrix)):
-                sim_matrix[(i,j)] = self.similarity(ratings_matrix[i], ratings_matrix[j])
-
-        known_index = []
-        unknown_index = []
-        for i in range(len(user_ratings)):
-            if user_ratings[i] == 0:
-                unknown_index.append(i)
-            else:
-                known_index.append(i)
-        
         scores_dic = {}
-        for index in unknown_index: 
-            score = 0 
 
-            for i in known_index: 
-                if index < i: 
-                    sim_score = sim_matrix[(index, i)]
-                else: 
-                    sim_score = sim_matrix[(i, index)]
-                weighted_score = sim_score * user_ratings[i]
-                score += weighted_score 
-            scores_dic[index] = score
-        
+        unknown_movies = []
+        known_movies = []
+        for i in range(len(user_ratings)):
+            rating = user_ratings[i]
+            if rating == 0: 
+                unknown_movies.append(i)
+            else: 
+                known_movies.append(i)
+
+        for movie_index in unknown_movies: 
+            scores_dic[movie_index] = 0
+            for movie_index2 in known_movies: 
+                similarity_score = self.similarity(ratings_matrix[movie_index], ratings_matrix[movie_index2])
+                scores_dic[movie_index] += similarity_score*user_ratings[movie_index2]
+       
         recommendations = [key for key, value in sorted(scores_dic.items(), key=lambda item: item[1], reverse=True)[:k]]
-
-
+        # print('bruh')
+        # print(recommendations)
         ########################################################################
         #                        END OF YOUR CODE                              #
         ########################################################################
@@ -523,6 +516,6 @@ class Chatbot:
 if __name__ == '__main__':
     print('To run your chatbot in an interactive loop from the command line, '
           'run:')
-    chatbot = Chatbot()
-    print(chatbot.debug('I really enjoyed "Titanic (1997)".'))
+    # chatbot = Chatbot()
+    # print(chatbot.recommend())
     print('python3 repl.py')
