@@ -145,7 +145,6 @@ class Chatbot:
             else: # Respond with found movies without recommendation
                 found_titles = ', '.join(titles)
                 response = f"I found information on the following movies: {found_titles}. What would you like to know about them?"
-                
         else: # If no specific movie titles are found, analyze for sentiment or emotion
             emotion = self.extract_emotion(line)
             sentiment = self.extract_sentiment(line)
@@ -245,6 +244,31 @@ class Chatbot:
                         emotions.append(emotion)
         if "!" in preprocessed_input and "Surprise" not in emotions:
             emotions.append("Surprise")
+
+
+        # try using json llm
+        # emotions = []
+        # class EmotionExtractor(BaseModel):
+        #     Anger: bool = Field(default=False)
+        #     Disgust: bool = Field(default=False)
+        #     Fear: bool = Field(default=False)
+        #     Happiness: bool = Field(default=False)
+        #     Sadness: bool = Field(default=False)
+        #     Surprise: bool = Field(default=False)
+
+        # # Call the LLM with the text and the JSON schema
+        # def extract_emotion(text: str):
+        #     system_prompt = "You are an emotion extractor bot. Read the text and extract the emotions into a JSON object."
+        #     message = text
+        #     json_class = EmotionExtractor
+
+        #     response = util.json_llm_call(system_prompt, message, json_class)
+
+        #     return response
+
+        # if __name__ == '__main__':
+        #     emotions = extract_emotion(preprocessed_input)
+
         return emotions
 
     def extract_titles(self, preprocessed_input):
