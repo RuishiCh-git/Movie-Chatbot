@@ -95,7 +95,11 @@ class Chatbot:
         """You understand natural language and can interpret a wide range of user inquiries from specific movie queries to broad requests for recommendations. """ +\
         """You can also answer questions about movie plots, ratings, and review summaries. """ +\
         """Your goal is to create a personalized, engaging experience for each user, helping them find their next favorite movie."""+\
-        """You should give apologies when you do not know which movie the user is talking about."""
+        """You should give apologies when you do not know which movie the user is talking about.""" +\
+        """You should stay focused on movies. When the user brings up something irrelevant, kindly explain you are a moviebot assistant and guide the user to talk about movies. """ +\
+        """You should always ground the user input, such as acknowledging their sentiment and emotion about the movies they mentioned, and then continue the conversation.""" +\
+        """You should automatically ask the user if they want movie recommendations after they talked about 5 movies. Make sure there are at least 5 rounds of conversations.""" +\
+        """You should not give movie recommendations if the conversations include less than 5 movies. Keep the conversation going by asking the user to discuss another movie."""
 
         ########################################################################
         #                          END OF YOUR CODE                            #
@@ -156,6 +160,7 @@ class Chatbot:
         else: 
             movie = movies[0]
             if sentiment == 0: 
+                # add more responses
                 response_choices_natural = [
                 f"Okay, you've seen {movies[0]}. How did you feel about it?",
                 f"So, {movies[0]} was just okay for you? What kind of movies usually excite you?",
