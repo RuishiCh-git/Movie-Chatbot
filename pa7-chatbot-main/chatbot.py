@@ -65,7 +65,7 @@ class Chatbot:
         # TODO: Write a short farewell message                                 #
         ########################################################################
 
-        goodbye_message = "Have a nice day!"
+        goodbye_message = "I hope you will have a wonderful day!"
 
         ########################################################################
         #                          END OF YOUR CODE                            #
@@ -84,7 +84,13 @@ class Chatbot:
         ########################################################################
 
         system_prompt = """Your name is EduBot. You are a movie recommender chatbot. """ +\
-        """You can help users find movies they like and provide information about movies."""
+        """Your name is moviebot. You are a movie recommender chatbot. You can help users find movies they like and provide information about movies."""+\
+        """You can provide detailed information about movies, including genres, directors, cast members, and release years. """ +\
+        """You understand natural language and can interpret a wide range of user inquiries, """ +\
+        """from specific movie queries to broad requests for recommendations. """ +\
+        """You can also answer questions about movie plots, ratings, and review summaries. """ +\
+        """Your goal is to create a personalized, engaging experience for each user, helping them find their next favorite movie."""+\
+        """You should give apologies when you do not know which movie the user is talking about."""
 
         ########################################################################
         #                          END OF YOUR CODE                            #
@@ -122,10 +128,37 @@ class Chatbot:
         # directly based on how modular it is, we highly recommended writing   #
         # code in a modular fashion to make it easier to improve and debug.    #
         ########################################################################
-        if self.llm_enabled:
-            response = "I processed {} in LLM Programming mode!!".format(line)
-        else:
-            response = "I processed {} in Starter (GUS) mode!!".format(line)
+        # if self.llm_enabled:
+        #     response = "I processed {} in LLM Programming mode!!".format(line)
+        # else:
+        #     response = "I processed {} in Starter (GUS) mode!!".format(line)
+        
+        titles = self.extract_titles(line) #find the title 
+
+        if titles:
+            for title in titles: 
+                movie_index = [self.find_movies_by_title(title)]
+            
+            if "recommend" in line.lower():#generate recommendations
+                recommendations = self.recommend(movie_index)
+                response = f"because you like {titles}, I would recommend you to watch: {', '.join(recommendations)}."
+            else: # Respond with found movies without recommendation
+                found_titles = ', '.join(titles)
+                response = f"I found information on the following movies: {found_titles}. What would you like to know about them?"
+                
+        else: # If no specific movie titles are found, analyze for sentiment or emotion
+            emotion = self.extract_emotion(line)
+            sentiment = self.extract_sentiment(line)
+            
+            if emotion:
+                emotion_response = " and ".join(emotion) 
+                response = f"It seems you're feeling {emotion_response}. Can I help with movie recommendations to match or change your mood?"
+            elif sentiment != 0:
+                sentiment_response = "positive" if sentiment > 0 else "negative"
+                response = f"You seem to have a {sentiment_response} opinion about this. Tell me more, or ask for recommendations."
+            else:
+                response = "I'm not sure how to respond to that. Could you tell me more so I can help you?"
+
 
         ########################################################################
         #                          END OF YOUR CODE                            #
