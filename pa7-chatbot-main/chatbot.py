@@ -304,28 +304,31 @@ class Chatbot:
         # }
 
         emotions = []
-        class FoodExtractor(BaseModel):
-            Anger: bool = Field(default=False)
-            Disgust: bool = Field(default=False)
-            Fear: bool = Field(default=False)
-            Happiness: bool = Field(default=False)
-            Sadness: bool = Field(default = False)
-            Surprise: bool = Field(default = False)
+        # class FoodExtractor(BaseModel):
+        #     Anger: bool = Field(default=False)
+        #     Disgust: bool = Field(default=False)
+        #     Fear: bool = Field(default=False)
+        #     Happiness: bool = Field(default=False)
+        #     Sadness: bool = Field(default = False)
+        #     Surprise: bool = Field(default = False)
 
-        json_class = FoodExtractor
+        json_dict = {"Anger": False, "Disgust": False}
 
 
         llm1_prompt = """You are an emotion extractor bot detecting emotions from an input message.""" +\
-                """Possible emotions for this task are Anger, Disgust, Fear, Happiness, Sadness, Surprise. """ +\
-                """Using only these emotions, read the message and extract emotion into a JSON object."""
-        emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_class, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
-        # print(emotions_object["Anger"])
+                """Following the logic of the JSON object provided. Extract emotion and populate the JSON object with the value set to True for the extracted emotions. Return the new JSON object."""
+        emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_dict, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
+        print(emotions_object)
         
         llm2_prompt = """You are a language bot that can respond to people's emotions. Given the input JSON object of emotions and their corresponding boolean values. Assess the emotions with a value of True. Generate a message that responds to these emotions.""" +\
                         """In your response, make sure to explicitly state the emotions."""
 
         message = util.simple_llm_call(llm2_prompt, emotions_object.values())
-        print(message)
+        
+        for emotion in json_dict: 
+            if json_dict[emotion] == True:
+                emotions.append(emotion)
+        print(emotions)
         return emotions_object.values()
     def extract_titles(self, preprocessed_input):
         """Extract potential movie titles from a line of pre-processed text.
