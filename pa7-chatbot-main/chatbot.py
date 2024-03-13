@@ -132,31 +132,57 @@ class Chatbot:
         #     response = "I processed {} in LLM Programming mode!!".format(line)
         # else:
         #     response = "I processed {} in Starter (GUS) mode!!".format(line)
-        
-        titles = self.extract_titles(line) #find the title 
+        preprocessed_input = self.preprocess(line)
 
+        titles = self.extract_titles(preprocessed_input)
+
+        movie_indices = []
+        
+        # Attempt to find movie indices for each extracted title
+        for title in titles:
+            indices = self.find_movies_by_title(title)
+            if indices:  # Only add indices if the list is not empty
+                movie_indices.extend(indices)
+
+        emotions = self.extract_emotion(preprocessed_input)
+        sentiment = self.extract_sentiment(preprocessed_input)
+        binary_sentiment = self.binarize(sentiment, threshold=0) 
+        
+        # Initialize response
+        response = ""
+        
         if titles:
-            for title in titles: 
-                movie_index = [self.find_movies_by_title(title)]
-            
-            if "recommend" in line.lower():#generate recommendations
-                recommendations = self.recommend(movie_index)
-                response = f"because you like {titles}, I would recommend you to watch: {', '.join(recommendations)}."
-            else: # Respond with found movies without recommendation
-                found_titles = ', '.join(titles)
-                response = f"I found information on the following movies: {found_titles}. What would you like to know about them?"
-        else: # If no specific movie titles are found, analyze for sentiment or emotion
-            emotion = self.extract_emotion(line)
-            sentiment = self.extract_sentiment(line)
-            
-            if emotion:
-                emotion_response = " and ".join(emotion) 
-                response = f"It seems you're feeling {emotion_response}. Can I help with movie recommendations to match or change your mood?"
-            elif sentiment != 0:
-                sentiment_response = "positive" if sentiment > 0 else "negative"
-                response = f"You seem to have a {sentiment_response} opinion about this. Tell me more, or ask for recommendations."
+            # If movie indices were found in the database
+            if movie_indices:
+                # If sentiment is positive or there are emotions suggesting a recommendation
+                if binary_sentiment > 0 or 'Happiness' in emotions:
+                    # Recommend a movie based on the indices
+                    recommendations = self.recommend(user_ratings, ratings_matrix, k=10, llm_enabled=False)  # Assuming recommend method exists
+                    response = f"Since you liked {titles[0]}, you might also enjoy {recommendations[0]}. "
+                elif binary_sentiment < 0:
+                    # Handle negative sentiment
+                    response = f"I'm sorry you didn't enjoy {titles[0]}. "
+                else:
+                    # Handle neutral sentiment
+                    response = f"You mentioned {titles[0]}. Could you tell me more about what kinds of movies you like? "
             else:
-                response = "I'm not sure how to respond to that. Could you tell me more so I can help you?"
+                # No matching movies found in the database
+                response = f"Sorry, I've never heard of '{titles[0]}'. Could you tell me about another movie you like? "
+        
+        if emotions:
+            emotion_response = " and ".join(emotions)
+            response += f"It seems you're feeling {emotion_response}. "
+
+        # Continue the conversation by asking if they want another recommendation
+        if response.endswith("? "):
+            response += "Or would you like a movie recommendation?"
+        else:
+            response += "Would you like another recommendation?"
+        
+        # Add an emotional response if emotions were detected
+        if emotions:
+            emotional_response = " and ".join(emotions)
+            response += f"It seems you're feeling {emotional_response}. "
 
 
         ########################################################################
