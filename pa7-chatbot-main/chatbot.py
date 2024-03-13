@@ -195,13 +195,23 @@ class Chatbot:
         :returns: a list of emotions in the text or an empty list if no emotions found.
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
+        emotion_keywords = {
+        "Anger": ["angry", "mad", "frustrated", "annoyed", "irate", "furious"],
+        "Disgust": ["disgusting", "gross", "revolting", "ugh", "repulsive"],
+        "Fear": ["scared", "frightened", "terrified", "afraid", "panic", "fearful"],
+        "Happiness": ["happy", "joyful", "glad", "excited", "delighted", "pleased"],
+        "Sadness": ["sad", "depressed", "unhappy", "mournful", "sorrowful", "gloomy"],
+        "Surprise": ["surprised", "shocked", "astonished", "amazed", "astounded", "unexpected"]
+        }
         emotions = []
-        
-        for word in preprocessed_input: 
-            if word == "!":
-                emotions.append("Surprise")
-            if word == "frustrated":
-                emotions.append("Anger")
+        words = preprocessed_input.split()
+        for word in words: 
+            for emotion, keywords in emotion_keywords.items():
+                if word.lower() in keywords:  
+                    if emotion not in emotions:
+                        emotions.append(emotion)
+        if "!" in preprocessed_input and "Surprise" not in emotions:
+            emotions.append("Surprise")
         return emotions
 
     def extract_titles(self, preprocessed_input):
