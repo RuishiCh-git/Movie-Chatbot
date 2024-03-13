@@ -95,7 +95,11 @@ class Chatbot:
         """You understand natural language and can interpret a wide range of user inquiries from specific movie queries to broad requests for recommendations. """ +\
         """You can also answer questions about movie plots, ratings, and review summaries. """ +\
         """Your goal is to create a personalized, engaging experience for each user, helping them find their next favorite movie."""+\
-        """You should give apologies when you do not know which movie the user is talking about."""
+        """You should give apologies when you do not know which movie the user is talking about.""" +\
+        """You should stay focused on movies. When the user brings up something irrelevant, kindly explain you are a moviebot assistant and guide the user to talk about movies. """ +\
+        """You should always ground the user input, such as acknowledging their sentiment and emotion about the movies they mentioned, and then continue the conversation.""" +\
+        """You should automatically ask the user if they want movie recommendations after they talked about 5 movies. Make sure there are at least 5 rounds of conversations.""" +\
+        """You should not give movie recommendations if the conversations include less than 5 movies. Keep the conversation going by asking the user to discuss another movie."""
 
         ########################################################################
         #                          END OF YOUR CODE                            #
@@ -138,84 +142,86 @@ class Chatbot:
         # else:
         #     response = "I processed {} in Starter (GUS) mode!!".format(line)
         # 
-        
-        if self.llm_enabled == False:
-            response = ""
-            movies = self.extract_titles(line)
-            sentiment = self.extract_sentiment(line)
-            if line.lower() == "yes" or line.lower() == "ok":
-                if self.movies_to_recommend: 
-                    movie_to_recommend = self.movies[self.movies_to_recommend[0]][self.recommendation_index]
-                    return 'Based on your past movie watching experiences, I suggest you watch "{movie_to_recommend[:-7]}". Would you like another recommendation?'
-            
-            if len(movies) > 1: 
-                return "I'm sorry. Please tell me about one movie at a time."
-            elif len(movies) == 0:
-                return "Sorry I don't understand. Please tell me about a movie you have seen."
-            else: 
-                movie = movies[0]
-                if sentiment == 0: 
-                    response_choices_natural = [
-                    f"Okay, you've seen {movies[0]} but I'm not sure how you feel about it. How did you feel about it?",
-                    f"So, {movies[0]} was just okay for you? Please tell me about a different movie you have watched.",
-                    f"{movies[0]} seems to have left you with mixed feelings. Perhaps tell me about a different movie you watched?",
-                    f"I'm sorry. I'm not quite sure if you liked {movies[0]}. \t Tell me more about {movies[0]}."
-                    ]
-                    return random.choice(response_choices_natural)
-                else:
-                    matching_movies = self.find_movies_by_title(movie)
-                    if len(matching_movies) == 0: 
-                        responses = [
-                            f"Hmm, I'm not familiar with the movie you mentioned. Could you tell me about another movie you've seen?",
-                            f"I don't seem to have movie you mentioned in my database. What's another movie you like?",
-                            f"The movie you mentioned doesn't ring a bell. Let's try another one, what else do you enjoy watching?",
-                            f"I can't find any information on the movie you mentioned. Is there another movie you can tell me about?" ,
-                            f"The movie you mentioned is not in my current list. Maybe you can introduce me to it, or we can find a different film you like.",
-                            f"I'm sorry. I wasn't able to find this movie in my database. Please tell me about a different movie you have seen."
-                        ]
-                        return random.choice(responses)
-                    elif len(matching_movies) == 1:
-                        self.movies_count += 1
-                        if sentiment == 1: 
-                            responses_choice_like = [
-                                    f"I'm glad to hear that you liked {movies[0]}. \n",
-                                    f"Cool! It sounds like {movies[0]} is quite a good movie. \n",
-                                    f"Nice! It soulds like {movies[0]} really resonated with you. \n",
-                                    f"You are a fan of {movies[0]}, that's great to hear! \n",
-                                    f"It's nice to see that you enjoyed watching {movies[0]}. {movies[0]} is indeed a great movie.\n",]
-                            response += random.choice(responses_choice_like)
-                        else:
-                            responses_choice_dislike = [
-                                f"I see, {movies[0]} wasn't your cup of tea. Let's find something you might enjoy more.",
-                                f"Got it, {movies[0]} didn't quite hit the mark for you. I'm here to help you find a better choice.",
-                                f"Understood, {movies[0]} wasn't to your liking. I'm sure there's a movie out there that you'll love!", 
-                                f"It's a bummer you didn't enjoy {movies[0]}. There are plenty of other movies to explore! \n",
-                                f"Not a fan of {movies[0]}, huh? Let's try to find a better match. \n",
-                                f"That's unfortunate about {movies[0]}. I can help you find something else. \n",
-                                f"Oh no, it sounds like {movies[0]} wasn't quite what you were looking for. \n",
-                                f"I'm sorry to hear that {movies[0]} wasn't to your taste. \n"] 
-                            response += random.choice(responses_choice_dislike)
+        response = ""
 
-                        self.user_ratings[matching_movies[0]] = sentiment
-                    else: 
-                        movie_names = []
-                        for movie_index in matching_movies:
-                            movie = self.movies[movie_index]
-                            movie_names.append(movie)
-                        movie_list_str = " or ".join(movie_names)
-                        return f"There are {len(matching_movies)} movies referring to {movie} that I found in my database. Which one did you watch? {movie_list_str}? Feel free to tell me about a different movie you have watched."
-            
-            if self.movies_count < 5:
-                response += "\t Tell me about another movie you have seen."
-            else:
-                self.recommendation = True 
-                
-                self.movies_to_recommend = self.recommend(self.user_ratings, self.ratings)
+        emotions = self.extract_emotion(line)
+        movies = self.extract_titles(line)
+        sentiment = self.extract_sentiment(line)
+        
+        if line.lower() == "yes" or line.lower() == "ok":
+            if self.movies_to_recommend: 
                 movie_to_recommend = self.movies[self.movies_to_recommend[0]][self.recommendation_index]
-                self.recommendation_index += 1
-                
-                response = f'Based on your past movie watching experiences, I suggest you watch "{movie_to_recommend[:-7]}". Would you like another recommendation?'
-            return response
+                return 'Based on your past movie watching experiences, I suggest you watch "{movie_to_recommend[:-7]}". Would you like another recommendation?'
+        
+        if len(movies) > 1: 
+            return "I'm sorry. Please tell me about one movie at a time."
+        elif len(movies) == 0:
+            return "Sorry I don't understand. Please tell me about a movie you have seen."
+        else: 
+            movie = movies[0]
+            if sentiment == 0: 
+                response_choices_natural = [
+                f"Okay, you've seen {movies[0]}. How did you feel about it?",
+                f"So, {movies[0]} was just okay for you? What kind of movies usually excite you?",
+                f"{movies[0]} seems to have left you with mixed feelings. Perhaps tell me about a different movie you watched?",
+                f"I'm sorry. I'm not quite sure if you liked {movies[0]}. \n Tell me more about {movies[0]}."
+                ]
+                return random.choice(response_choices_natural)
+            else:
+                matching_movies = self.find_movies_by_title(movie)
+                if len(matching_movies) == 0: 
+                    responses = [
+                        f"Hmm, I'm not familiar with the movie you mentioned. Could you tell me about another movie you've seen?",
+                        f"I don't seem to have movie you mentioned in my database. What's another movie you like?",
+                        f"The movie you mentioned doesn't ring a bell. Let's try another one, what else do you enjoy watching?",
+                        f"I can't find any information on the movie you mentioned. Do you have any other favorites?",
+                        f"The movie you mentioned is not in my current list. Maybe you can introduce me to it, or we can find a different film you like.",
+                        f"I'm sorry. I wasn't able to find this movie in my database. Please tell me about a different movie you have seen."
+                    ]
+                    return random.choice(responses)
+                elif len(matching_movies) == 1:
+                    self.movies_count += 1
+                    if sentiment == 1: 
+                        responses_choice_like = [
+                                f"I'm glad to hear that you liked {movies[0]}. \n",
+                                f"Cool! It sounds like {movies[0]} is quite a good movie. \n",
+                                f"Nice! It soulds like {movies[0]} really resonated with you. \n",
+                                f"You are a fan of {movies[0]}, that's great to hear! \n",
+                                f"It's a bummer you didn't enjoy {movies[0]}. There are plenty of other movies to explore! \n",]
+                        response += random.choice(responses_choice_like)
+                    else:
+                        responses_choice_dislike = [
+                            f"I see, {movies[0]} wasn't your cup of tea. Let's find something you might enjoy more.",
+                            f"Got it, {movies[0]} didn't quite hit the mark for you. I'm here to help you find a better choice.",
+                            f"Understood, {movies[0]} wasn't to your liking. I'm sure there's a movie out there that you'll love!", 
+                            f"It's a bummer you didn't enjoy {movies[0]}. There are plenty of other movies to explore! \n",
+                            f"Not a fan of {movies[0]}, huh? Let's try to find a better match. \n",
+                            f"That's unfortunate about {movies[0]}. I can help you find something else. \n",
+                            f"Oh no, it sounds like {movies[0]} wasn't quite what you were looking for. \n",
+                            f"I'm sorry to hear that {movies[0]} wasn't to your taste. \n"] 
+                        response += random.choice(responses_choice_dislike)
+                    self.user_ratings[matching_movies[0]] = sentiment
+                else: 
+                    movie_names = []
+                    for movie_index in matching_movies:
+                        movie = self.movies[movie_index]
+                        movie_names.append(movie)
+                    movie_list_str = " or ".join(movie_names)
+                    return f"There are {len(matching_movies)} movies referring to {movie} that I found in my database. Which one did you watch? {movie_list_str}? Feel free to tell me about a different movie you have watched."
+        
+        if self.movies_count < 5:
+            response += "\t Tell me about another movie you have seen."
+        else:
+            self.recommendation = True 
+            
+            self.movies_to_recommend = self.recommend(self.user_ratings, self.ratings)
+            movie_to_recommend = self.movies[self.movies_to_recommend[0]][self.recommendation_index]
+            self.recommendation_index += 1
+            
+            response = f'Based on your past movie watching experiences, I suggest you watch "{movie_to_recommend[:-7]}". Would you like another recommendation?'
+
+        if self.llm_enabled: 
+            return response 
         else: 
             # print("yeah")
             system_prompt = self.llm_system_prompt()
