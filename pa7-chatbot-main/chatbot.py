@@ -160,7 +160,6 @@ class Chatbot:
         else: 
             movie = movies[0]
             if sentiment == 0: 
-                # add more responses
                 response_choices_natural = [
                 f"Okay, you've seen {movies[0]}. How did you feel about it?",
                 f"So, {movies[0]} was just okay for you? What kind of movies usually excite you?",
@@ -224,9 +223,16 @@ class Chatbot:
         if self.llm_enabled: 
             return response 
         else: 
+            # print("yeah")
+            system_prompt = self.llm_system_prompt()
+            
+            emotions_response  = self.extract_emotion(line)
+            
+            print(emotions_response)
+            # print(f"emotions: {len(llm_emotions)}: {llm_emotions}")
+            response = util.simple_llm_call(system_prompt, line, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256, stop=None)
+
             return response
-
-
         ########################################################################
         #                          END OF YOUR CODE                            #
         ########################################################################
@@ -294,50 +300,39 @@ class Chatbot:
         :returns: a list of emotions in the text or an empty list if no emotions found.
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
-        emotion_keywords = {
-        "Anger": ["angry", "mad", "frustrated", "annoyed", "irate", "furious"],
-        "Disgust": ["disgusting", "gross", "revolting", "ugh", "repulsive"],
-        "Fear": ["scared", "frightened", "terrified", "afraid", "panic", "fearful"],
-        "Happiness": ["happy", "joyful", "glad", "excited", "delighted", "pleased"],
-        "Sadness": ["sad", "depressed", "unhappy", "mournful", "sorrowful", "gloomy"],
-        "Surprise": ["surprised", "shocked", "astonished", "amazed", "astounded", "unexpected"]
-        }
+        # emotion_keywords = {
+        # "Anger": ["angry", "mad", "frustrated", "annoyed", "irate", "furious"],
+        # "Disgust": ["disgusting", "gross", "revolting", "ugh", "repulsive"],
+        # "Fear": ["scared", "frightened", "terrified", "afraid", "panic", "fearful"],
+        # "Happiness": ["happy", "joyful", "glad", "excited", "delighted", "pleased"],
+        # "Sadness": ["sad", "depressed", "unhappy", "mournful", "sorrowful", "gloomy"],
+        # "Surprise": ["surprised", "shocked", "astonished", "amazed", "astounded", "unexpected"]
+        # }
+
         emotions = []
-        words = preprocessed_input.split()
-        for word in words: 
-            for emotion, keywords in emotion_keywords.items():
-                if word.lower() in keywords:  
-                    if emotion not in emotions:
-                        emotions.append(emotion)
-        if "!" in preprocessed_input and "Surprise" not in emotions:
-            emotions.append("Surprise")
+        class FoodExtractor(BaseModel):
+            Anger: bool = Field(default=False)
+            Disgust: bool = Field(default=False)
+            Fear: bool = Field(default=False)
+            Happiness: bool = Field(default=False)
+            Sadness: bool = Field(default = False)
+            Surprise: bool = Field(default = False)
+
+        json_class = FoodExtractor
 
 
-        # try using json llm
-        # emotions = []
-        # class EmotionExtractor(BaseModel):
-        #     Anger: bool = Field(default=False)
-        #     Disgust: bool = Field(default=False)
-        #     Fear: bool = Field(default=False)
-        #     Happiness: bool = Field(default=False)
-        #     Sadness: bool = Field(default=False)
-        #     Surprise: bool = Field(default=False)
+        llm1_prompt = """You are an emotion extractor bot detecting emotions from an input message.""" +\
+                """Possible emotions for this task are Anger, Disgust, Fear, Happiness, Sadness, Surprise. """ +\
+                """Using only these emotions, read the message and extract emotion into a JSON object."""
+        emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_class, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
+        # print(emotions_object["Anger"])
+        
+        llm2_prompt = """You are a language bot that can respond to people's emotions. Given the input JSON object of emotions and their corresponding boolean values. Assess the emotions with a value of True. Generate a message that responds to these emotions.""" +\
+                        """In your response, make sure to explicitly state the emotions."""
 
-        # # Call the LLM with the text and the JSON schema
-        # def extract_emotion(text: str):
-        #     system_prompt = "You are an emotion extractor bot. Read the text and extract the emotions into a JSON object."
-        #     message = text
-        #     json_class = EmotionExtractor
-
-        #     response = util.json_llm_call(system_prompt, message, json_class)
-
-        #     return response
-
-        # if __name__ == '__main__':
-        #     emotions = extract_emotion(preprocessed_input)
-
-        return emotions
-
+        message = util.simple_llm_call(llm2_prompt, emotions_object.values())
+        print(message)
+        return emotions_object.values()
     def extract_titles(self, preprocessed_input):
         """Extract potential movie titles from a line of pre-processed text.
 
