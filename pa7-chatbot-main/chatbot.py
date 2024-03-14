@@ -6,6 +6,7 @@
 ######################################################################
 import util
 from pydantic import BaseModel, Field
+import argparse
 
 import numpy as np
 import re
@@ -233,10 +234,13 @@ class Chatbot:
 
             # message = util.simple_llm_call(llm2_prompt, emotions_object.values())
             
-            system_prompt = self.llm_system_prompt()
+            system_prompt = self.llm_system_prompt() 
             
-            emotions = self.extract_emotion(line)
+            emotions = ', '.join(self.extract_emotion(line))
             
+            if len(emotions) > 0:
+                system_prompt += "The user input contains emotions of " + emotions + ". Respond appropriately to these emotions, such as apologize when there is angry, and be cheerful when there is sadness."
+                            
             # print(emotions_response)
             # print(f"emotions: {len(llm_emotions)}: {llm_emotions}")
             response = util.simple_llm_call(system_prompt, line, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256, stop=None)
@@ -276,6 +280,16 @@ class Chatbot:
 
         return text
     
+    
+    # Define the JSON schema for the LLM
+    class EmotionExtractor(BaseModel):
+        Anger: bool = Field(default=False)
+        Disgust: bool = Field(default=False)
+        Fear: bool = Field(default=False)
+        Happiness: bool = Field(default=False)
+        Sadness: bool = Field(default = False)
+        Surprise: bool = Field(default = False)
+    
     def extract_emotion(self, preprocessed_input):
         """LLM PROGRAMMING MODE: Extract an emotion from a line of pre-processed text.
         
@@ -310,29 +324,18 @@ class Chatbot:
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
         possible_emotions = ["Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"]
-        class FoodExtractor(BaseModel):
-            Anger: bool = Field(default=False)
-            Disgust: bool = Field(default=False)
-            Fear: bool = Field(default=False)
-            Happiness: bool = Field(default=False)
-            Sadness: bool = Field(default = False)
-            Surprise: bool = Field(default = False)
 
-        json_object = FoodExtractor
+        json_class = EmotionExtractor
 
-
-        llm1_prompt = """You are an emotion extractor bot detecting emotions from an input message.""" +\
-                """Following the logic of the JSON object provided. Extract emotion and populate the JSON object with the value set to True for the extracted emotions. Return the new JSON object."""
-        emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_object, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
+        llm1_prompt = "You are an emotion extractor bot for extracting 6 possible emotions including 'Anger', 'Disgust', 'Fear', 'Happiness', 'Sadness', and 'Surprise' from an input message, then return a JSON object."
+        emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_class, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
         # print(emotions_object['Anger'])
 
- 
-        
         detected_emotions = []
         for emotion in possible_emotions: 
             if emotions_object[emotion] == True:
                 detected_emotions.append(emotion)
-        # print(detected_emotions)
+        #print(detected_emotions)
         return detected_emotions
 
     def extract_titles(self, preprocessed_input):
