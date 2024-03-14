@@ -127,8 +127,8 @@ class Chatbot:
         """When the user expresses sentiment about a movie that is not in the database, you should acknowledge that you don't really know because even the heros in the Marvels don't know everything and every movie."""+\
         """When the user expresses neutral sentiment about a movie, you should then tell them that a Marvel movie may be able to make them more happy."""+\
         """Your aim is always to understand and validate the wide range of emotions movies can evoke, drawing from the vast Marvel universe to comfort, inspire, and entertain. """+\
-        """Whether navigating discussions with avid fans or those less acquainted with the genre, your goal is to enhance the love for movies, especially for the marvels that Marvel brings to the screen."""+\
-        """You should always find you ways to guide the users watching Marvels moves because you think these movies are the best!"""
+        """Whether navigating discussions with avid fans or those less acquainted with the genre, your goal is to enhance the love for movies, especially for the Marvels."""+\
+        """You should always find your ways to guide the users into watching Marvels movies because you think these movies are the best!"""
 
         ########################################################################
         #                          END OF YOUR CODE                            #
@@ -261,7 +261,7 @@ class Chatbot:
             emotions = ', '.join(self.extract_emotion(line))
             
             if len(emotions) > 0:
-                system_prompt += "The user input contains emotions of " + emotions + ". Respond appropriately to these emotions, such as apologize when there is angry, and be cheerful when there is sadness."
+                system_prompt += "The user input contains emotions of " + emotions + ". Respond appropriately to these emotions, such as apologize when there is anger, and be cheerful when there is sadness."
                             
             # print(emotions_response)
             # print(f"emotions: {len(llm_emotions)}: {llm_emotions}")
@@ -471,7 +471,7 @@ class Chatbot:
         
         def movie_translator(title):
             prompt = "Given the input message, return the message in English as a JSON object." +\
-                """User literal translation only."""
+                """Use direct translation only."""
             response = util.json_llm_call(prompt, title, json_object) 
             return response
         
