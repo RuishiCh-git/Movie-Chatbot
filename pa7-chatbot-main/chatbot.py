@@ -227,10 +227,10 @@ class Chatbot:
             #             """In your response, make sure to explicitly state the emotions."""
 
             # message = util.simple_llm_call(llm2_prompt, emotions_object.values())
-            # print("yeah")
+            
             system_prompt = self.llm_system_prompt()
             
-            emotions_response  = self.extract_emotion(line)
+            emotions = self.extract_emotion(line)
             
             # print(emotions_response)
             # print(f"emotions: {len(llm_emotions)}: {llm_emotions}")
