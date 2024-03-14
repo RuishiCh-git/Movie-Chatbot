@@ -327,17 +327,16 @@ class Chatbot:
 
 
         llm1_prompt = """You are an emotion extractor bot detecting emotion(s) from an input message.""" +\
-                """Extract emotion as perceived by a normal human from the input message and return a JSON object. """ 
-                # """Carefully and appropriately judge when there should be more than one emotion extracted.""" +\
-                # """Do not make the assumption that a question conveys the surprise emotion.""" +\
-                # """Simply using exclamation marks does not mean surprised."""
+                """Extract emotion as perceived by a normal human and return a JSON object. """ +\
+                """If you are super unsure if an emotion should be extracted, treat it as False.""" +\
+                """Ignore punctuations.""" +\
+                """Words like "Woah" and 'shock' should imply surprise.""" +\
+                """Extract disgust only when the word 'disgust' is explicitly mentioned in the input message.""" +\
+                """Ignore questions."""
+             
 
         emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_object, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
-        
-        # print(f"check: {emotions_object['Anger']}")
-        # print(emotions_object)
-
-        
+              
         detected_emotions = set()
         for emotion in possible_emotions: 
             if emotion in emotions_object:
@@ -407,7 +406,7 @@ class Chatbot:
         json_object = movieName
         
         def movie_translator(title):
-            prompt = "Given the movie title, return the movie title in English as a JSON object."
+            prompt = "Given the input message, return the message in English as a JSON object."
             response = util.json_llm_call(prompt, title, json_object) 
             return response
         
@@ -416,7 +415,7 @@ class Chatbot:
     
             if isEnglish['isEnglish'] == False:
                 title = movie_translator(title)['EnglishTranslation']
-            
+                print(title)
         articles = {"A", "An", "The"}
 
         words = title.split()
