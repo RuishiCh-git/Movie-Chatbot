@@ -100,7 +100,8 @@ class Chatbot:
         """You should always ground the user input, such as acknowledging their sentiment and emotion about the movies they mentioned, and then continue the conversation.""" +\
         """You should automatically ask the user if they want movie recommendations after they talked about 5 movies. Make sure there are at least 5 rounds of conversations.""" +\
         """You should not give movie recommendations if the conversations include less than 5 movies. Keep the conversation going by asking the user to discuss another movie."""+\
-        """You should not be overly verbose. Keep the conversation engaging but also concise."""
+        """You should not be overly verbose. Keep the conversation engaging but also concise."""+\
+        """You should offer to change the topic when you think the user feeling upset."""
         
 
         ########################################################################
@@ -172,7 +173,7 @@ class Chatbot:
             else:
                 matching_movies = self.find_movies_by_title(movie)
                 if len(matching_movies) == 0: 
-                    responses = [
+                    responses_matching_responses = [
                         f"Hmm, I'm not familiar with the movie you mentioned. Could you tell me about another movie you've seen?",
                         f"I don't seem to have movie you mentioned in my database. What's another movie you like?",
                         f"The movie you mentioned doesn't ring a bell. Let's try another one, what else do you enjoy watching?",
@@ -180,7 +181,7 @@ class Chatbot:
                         f"The movie you mentioned is not in my current list. Maybe you can introduce me to it, or we can find a different film you like.",
                         f"I'm sorry. I wasn't able to find this movie in my database. Please tell me about a different movie you have seen."
                     ]
-                    return random.choice(responses)
+                    return random.choice(responses_matching_responses)
                 elif len(matching_movies) == 1:
                     self.movies_count += 1
                     if sentiment == 1: 
