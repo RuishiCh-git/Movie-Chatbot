@@ -326,10 +326,11 @@ class Chatbot:
         json_object = EmotionExtractor
 
 
-        llm1_prompt = """You are an emotion extractor bot detecting emotions from an input message.""" +\
-                """Extract emotion and return a JSON object's corresponding key = emotion with the value set to True for each extracted emotion. Return the new JSON object.""" +\
-                """Carefully and appropriately judge when there should be more than one emotion extracted.""" +\
-                """For actual questions. Do not assess the question as the surprised emotion."""
+        llm1_prompt = """You are an emotion extractor bot detecting emotion(s) from an input message.""" +\
+                """Extract emotion as perceived by a normal human from the input message and return a JSON object. """ 
+                # """Carefully and appropriately judge when there should be more than one emotion extracted.""" +\
+                # """Do not make the assumption that a question conveys the surprise emotion.""" +\
+                # """Simply using exclamation marks does not mean surprised."""
 
         emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_object, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
         
@@ -391,31 +392,38 @@ class Chatbot:
         :returns: a list of indices of matching movies
         """
 
-        def movie_language(title):
-            prompt = """Given an input. Output True if the input is in English. Output False otherwise.""" +\
-                """Respond only with 'True' or 'False', nothing else."""
-            English = util.simple_llm_call(prompt, title)
-            return English
-        print(movie_language(title))
-
-       
-        def movie_translator(title):
-            prompt = """Given a movie title in any language.""" +\
-                """Only use direct translation.""" +\
-                """Do not provide year.""" +\
-                """Respond only the title of the movie in English, nothing else."""
-
-            translation = util.simple_llm_call(prompt, title) 
-            return translation
+        class jSONN(BaseModel):
+            isEnglish: bool = Field(default = True)
         
-        if movie_language(title) == "False":
-            title = movie_translator(title)
+        json_object1 = jSONN
        
+        def is_english(title):
+            prompt = "Read the sentence and extract its language as a boolean value for True if the sentence is in English, False if the sentence is not in English. Return the JSON object."
+            English = util.json_llm_call(prompt, title, json_object1)
+            return English
+        
+        class movieName(BaseModel):
+            EnglishTranslation: str = Field(default = None)
+        json_object = movieName
+        
+        def movie_translator(title):
+            prompt = "Given the movie title, return the movie title in English as a JSON object."
+            response = util.json_llm_call(prompt, title, json_object) 
+            return response
+        
+        if self.llm_enabled:
+            isEnglish = is_english(title)
+    
+            if isEnglish['isEnglish'] == False:
+                title = movie_translator(title)['EnglishTranslation']
+            
         articles = {"A", "An", "The"}
 
         words = title.split()
         title_article = None
         #process input if it starts with an article
+
+        # print(len(title))
         if words[0] in articles: 
             title_article = words[0]
             title = " ".join(words[1:])
