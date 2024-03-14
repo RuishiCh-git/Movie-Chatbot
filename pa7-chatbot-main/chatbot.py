@@ -324,12 +324,17 @@ class Chatbot:
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
         possible_emotions = ["Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"]
+        
+        class EmotionExtractor(BaseModel):
+            Anger: bool = Field(default=False)
+            Disgust: bool = Field(default=False)
+            Fear: bool = Field(default=False)
+            Happiness: bool = Field(default=False)
+            Sadness: bool = Field(default = False)
+            Surprise: bool = Field(default = False)
 
-        json_class = EmotionExtractor
+        json_object = EmotionExtractor
 
-        llm1_prompt = "You are an emotion extractor bot for extracting 6 possible emotions including 'Anger', 'Disgust', 'Fear', 'Happiness', 'Sadness', and 'Surprise' from an input message, then return a JSON object."
-        emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_class, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
-        # print(emotions_object['Anger'])
 
         llm1_prompt = """You are an emotion extractor bot detecting emotion(s) from an input message.""" +\
                 """Extract emotion as perceived by a normal human and return a JSON object. """ +\
@@ -338,16 +343,49 @@ class Chatbot:
                 """Words like "Woah" and 'shock' should imply surprise.""" +\
                 """Extract disgust only when the word 'disgust' is explicitly mentioned in the input message.""" +\
                 """Ignore questions."""
-             
+                # """Carefully and appropriately judge when there should be more than one emotion extracted.""" +\
+                # """Do not make the assumption that a question conveys the surprise emotion.""" +\
+                # """Simply using exclamation marks does not mean surprised."""
 
         emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_object, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
-              
+        
+        # print(f"check: {emotions_object['Anger']}")
+        # print(emotions_object)
+
+        
         detected_emotions = set()
         for emotion in possible_emotions: 
-            if emotions_object[emotion] == True:
-                detected_emotions.append(emotion)
-        #print(detected_emotions)
+            if emotion in emotions_object:
+                if emotions_object[emotion] == True:
+                    detected_emotions.add(emotion)
+        # print(detected_emotions)
         return detected_emotions
+
+        # possible_emotions = ["Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"]
+
+        # json_class = EmotionExtractor
+
+        # llm1_prompt = "You are an emotion extractor bot for extracting 6 possible emotions including 'Anger', 'Disgust', 'Fear', 'Happiness', 'Sadness', and 'Surprise' from an input message, then return a JSON object."
+        # emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_class, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
+        # # print(emotions_object['Anger'])
+
+        # llm1_prompt = """You are an emotion extractor bot detecting emotion(s) from an input message.""" +\
+        #         """Extract emotion as perceived by a normal human and return a JSON object. """ +\
+        #         """If you are super unsure if an emotion should be extracted, treat it as False.""" +\
+        #         """Ignore punctuations.""" +\
+        #         """Words like "Woah" and 'shock' should imply surprise.""" +\
+        #         """Extract disgust only when the word 'disgust' is explicitly mentioned in the input message.""" +\
+        #         """Ignore questions."""
+             
+
+        # emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_class, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
+              
+        # detected_emotions = set()
+        # for emotion in possible_emotions: 
+        #     if emotions_object[emotion] == True:
+        #         detected_emotions.add(emotion)
+        # #print(detected_emotions)
+        # return detected_emotions
 
     def extract_titles(self, preprocessed_input):
         """Extract potential movie titles from a line of pre-processed text.
