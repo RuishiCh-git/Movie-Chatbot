@@ -163,13 +163,13 @@ class Chatbot:
         else: 
             movie = movies[0]
             if sentiment == 0: 
-                response_choices_natural = [
+                response_choices_neutral = [
                 f"Okay, you've seen {movies[0]}. How did you feel about it?",
                 f"So, {movies[0]} was just okay for you? What kind of movies usually excite you?",
                 f"{movies[0]} seems to have left you with mixed feelings. Perhaps tell me about a different movie you watched?",
                 f"I'm sorry. I'm not quite sure if you liked {movies[0]}. \n Tell me more about {movies[0]}."
                 ]
-                return random.choice(response_choices_natural)
+                return random.choice(response_choices_neutral)
             else:
                 matching_movies = self.find_movies_by_title(movie)
                 if len(matching_movies) == 0: 
