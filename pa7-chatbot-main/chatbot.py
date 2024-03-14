@@ -91,6 +91,7 @@ class Chatbot:
 
         system_prompt = """Your name is EduBot. You are a movie recommender chatbot. """ +\
         """You can help users find movies they like and provide information about movies."""+\
+        """You are a cute chatbot and respond to user's input enthusiastically! You are an easying going moviebot."""+\ 
         """You can provide detailed information about movies, including genres, directors, cast members, and release years. """ +\
         """You understand natural language and can interpret a wide range of user inquiries from specific movie queries to broad requests for recommendations. """ +\
         """You can also answer questions about movie plots, ratings, and review summaries. """ +\
@@ -98,10 +99,12 @@ class Chatbot:
         """You should give apologies when you do not know which movie the user is talking about.""" +\
         """You should stay focused on movies. When the user brings up something irrelevant, kindly explain you are a moviebot assistant and guide the user to talk about movies. """ +\
         """You should always ground the user input, such as acknowledging their sentiment and emotion about the movies they mentioned, and then continue the conversation.""" +\
+        """You can handle statement unrelated to movie by kindly explaining that you are a moviebot assistant and guide the user to talk about movies."""+\
         """You should automatically ask the user if they want movie recommendations after they talked about 5 movies. Make sure there are at least 5 rounds of conversations.""" +\
         """You should not give movie recommendations if the conversations include less than 5 movies. Keep the conversation going by asking the user to discuss another movie."""+\
         """You should not be overly verbose. Keep the conversation engaging but also concise."""+\
-        """You should offer to change the topic when you think the user feeling upset."""
+        """You should offer to change the topic when you think the user feeling upset."""+\
+        """When you don't know what the user is talking about, you can have catch-all answer and ask the user for clarification."""
         
 
         ########################################################################
@@ -147,7 +150,6 @@ class Chatbot:
         # 
         response = ""
 
-        emotions = self.extract_emotion(line)
         movies = self.extract_titles(line)
         sentiment = self.extract_sentiment(line)
         
@@ -173,15 +175,15 @@ class Chatbot:
             else:
                 matching_movies = self.find_movies_by_title(movie)
                 if len(matching_movies) == 0: 
-                    responses_matching_responses = [
-                        f"Hmm, I'm not familiar with the movie you mentioned. Could you tell me about another movie you've seen?",
-                        f"I don't seem to have movie you mentioned in my database. What's another movie you like?",
-                        f"The movie you mentioned doesn't ring a bell. Let's try another one, what else do you enjoy watching?",
-                        f"I can't find any information on the movie you mentioned. Do you have any other favorites?",
-                        f"The movie you mentioned is not in my current list. Maybe you can introduce me to it, or we can find a different film you like.",
-                        f"I'm sorry. I wasn't able to find this movie in my database. Please tell me about a different movie you have seen."
+                    responses_no_matching = [
+                        f"Hmm... Sorry, I'm not familiar with {movies[0]}. Could you tell me about another movie you've seen?",
+                        f"I apologize. I don't seem to have movie {movies[0]} in my database. What's another movie you like?",
+                        f"I am sorry, but {movies[0]} doesn't ring a bell. Let's try another one, what else do you enjoy watching?",
+                        f"I am sorry that can't find any information on {movies[0]}. Do you have any other favorites?",
+                        f"{movies[0]} is not in my current list. Maybe you can introduce me to it, or we can find a different film you like.",
+                        f"I'm sorry. I wasn't able to find {movies[0]} in my database. Please tell me about a different movie you have seen."
                     ]
-                    return random.choice(responses_matching_responses)
+                    return random.choice(responses_no_matching)
                 elif len(matching_movies) == 1:
                     self.movies_count += 1
                     if sentiment == 1: 
@@ -307,15 +309,6 @@ class Chatbot:
         :returns: a list of emotions in the text or an empty list if no emotions found.
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
-        # emotion_keywords = {
-        # "Anger": ["angry", "mad", "frustrated", "annoyed", "irate", "furious"],
-        # "Disgust": ["disgusting", "gross", "revolting", "ugh", "repulsive"],
-        # "Fear": ["scared", "frightened", "terrified", "afraid", "panic", "fearful"],
-        # "Happiness": ["happy", "joyful", "glad", "excited", "delighted", "pleased"],
-        # "Sadness": ["sad", "depressed", "unhappy", "mournful", "sorrowful", "gloomy"],
-        # "Surprise": ["surprised", "shocked", "astonished", "amazed", "astounded", "unexpected"]
-        # }
-
         possible_emotions = ["Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"]
         class FoodExtractor(BaseModel):
             Anger: bool = Field(default=False)
