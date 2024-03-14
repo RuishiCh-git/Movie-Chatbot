@@ -91,7 +91,8 @@ class Chatbot:
 
         system_prompt = """Your name is EduBot. You are a movie recommender chatbot. """ +\
         """You can help users find movies they like and provide information about movies."""+\
-        """You are a cute chatbot and respond to user's input enthusiastically! You are an easying going moviebot."""+\
+        """For every message and conversation you have. You are going to play the persona of The Movie Enthusiast AI.""" +\
+        """This persona pretends to have seen all movies ever made. It humorously makes comments about movies the user has seen and makes great jokes in different scenarios."""+\
         """You can provide detailed information about movies, including genres, directors, cast members, and release years. """ +\
         """You understand natural language and can interpret a wide range of user inquiries from specific movie queries to broad requests for recommendations. """ +\
         """You can also answer questions about movie plots, ratings, and review summaries. """ +\
@@ -102,11 +103,13 @@ class Chatbot:
         """You can handle statement unrelated to movie by kindly explaining that you are a moviebot assistant and guide the user to talk about movies."""+\
         """You should automatically ask the user if they want movie recommendations after they talked about 5 movies. Make sure there are at least 5 rounds of conversations.""" +\
         """You should not give movie recommendations if the conversations include less than 5 movies. Keep the conversation going by asking the user to discuss another movie."""+\
-        """You should not be overly verbose. Keep the conversation engaging but also concise."""+\
-        """You should offer to change the topic when you think the user feeling upset."""+\
-        """When you don't know what the user is talking about, you can have catch-all answer and ask the user for clarification."""
+        """You should not be overly verbose. Keep the conversation engaging but also concise. Remember to stay within the persona. """+\
+        """You should not change the topic when you think the user feeling upset. """+\
+        """When the user is not talking about a specific movie and is expressing emotions such as anger, sadness, happiness, fear, and digust, you should acknowledge the user's feelings first, then stay on topic and ask the user to offer a movie and his/her opinion.""" +\
+        """When you don't know what the user is talking about, you can have an catch-all answer and ask the user to provide a movie and his/her opinion.""" +\
+        """When the user seems upset and requests to change topics. Stay on track and kindly guide the user to provide the needed information.""" +\
+        """Remember to stay within the persona of The Movie Enthusiast AI at all times!!!"""
         
-
         ########################################################################
         #                          END OF YOUR CODE                            #
         ########################################################################
@@ -223,7 +226,7 @@ class Chatbot:
             movie_to_recommend = self.movies[self.movies_to_recommend[0]][self.recommendation_index]
             self.recommendation_index += 1
             
-            response = f'Based on your past movie watching experiences, I suggest you watch "{movie_to_recommend[:-7]}". Would you like another recommendation?'
+            response = f'Based on your past movie watching experiences, I suggest you watch "{movie_to_recommend[:-7]}". Would you like another recommendation? Reply yes or no.'
 
         if self.llm_enabled == False: 
             return response 
@@ -236,6 +239,7 @@ class Chatbot:
             system_prompt = self.llm_system_prompt()
             
             emotions = self.extract_emotion(line)
+            emotions_string = " ".join(emotions)
             
             # print(emotions_response)
             # print(f"emotions: {len(llm_emotions)}: {llm_emotions}")
@@ -310,7 +314,8 @@ class Chatbot:
         Possible emotions are: "Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"
         """
         possible_emotions = ["Anger", "Disgust", "Fear", "Happiness", "Sadness", "Surprise"]
-        class FoodExtractor(BaseModel):
+        
+        class EmotionExtractor(BaseModel):
             Anger: bool = Field(default=False)
             Disgust: bool = Field(default=False)
             Fear: bool = Field(default=False)
@@ -318,20 +323,25 @@ class Chatbot:
             Sadness: bool = Field(default = False)
             Surprise: bool = Field(default = False)
 
-        json_object = FoodExtractor
+        json_object = EmotionExtractor
 
 
         llm1_prompt = """You are an emotion extractor bot detecting emotions from an input message.""" +\
-                """Following the logic of the JSON object provided. Extract emotion and populate the JSON object with the value set to True for the extracted emotions. Return the new JSON object."""
-        emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_object, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
-        # print(emotions_object['Anger'])
+                """Extract emotion and return a JSON object's corresponding key = emotion with the value set to True for each extracted emotion. Return the new JSON object.""" +\
+                """Carefully and appropriately judge when there should be more than one emotion extracted.""" +\
+                """For actual questions. Do not assess the question as the surprised emotion."""
 
- 
+        emotions_object = util.json_llm_call(llm1_prompt, preprocessed_input, json_object, model="mistralai/Mixtral-8x7B-Instruct-v0.1", max_tokens=256)
         
-        detected_emotions = []
+        # print(f"check: {emotions_object['Anger']}")
+        # print(emotions_object)
+
+        
+        detected_emotions = set()
         for emotion in possible_emotions: 
-            if emotions_object[emotion] == True:
-                detected_emotions.append(emotion)
+            if emotion in emotions_object:
+                if emotions_object[emotion] == True:
+                    detected_emotions.add(emotion)
         # print(detected_emotions)
         return detected_emotions
 
@@ -381,6 +391,26 @@ class Chatbot:
         :returns: a list of indices of matching movies
         """
 
+        def movie_language(title):
+            prompt = """Given an input. Output True if the input is in English. Output False otherwise.""" +\
+                """Respond only with 'True' or 'False', nothing else."""
+            English = util.simple_llm_call(prompt, title)
+            return English
+        print(movie_language(title))
+
+       
+        def movie_translator(title):
+            prompt = """Given a movie title in any language.""" +\
+                """Only use direct translation.""" +\
+                """Do not provide year.""" +\
+                """Respond only the title of the movie in English, nothing else."""
+
+            translation = util.simple_llm_call(prompt, title) 
+            return translation
+        
+        if movie_language(title) == "False":
+            title = movie_translator(title)
+       
         articles = {"A", "An", "The"}
 
         words = title.split()
