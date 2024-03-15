@@ -21,10 +21,9 @@ Did not implement any of the above features: YES
 #########################################################################################
 # Team Contributions                                                                    #
 #########################################################################################
-We all contributed to our project. 
-Specifically, we all build the Starter code together. Then, Michelle's contributed more to the llm programming session of the work 
-while yiling and Ruishi helped editing the system prompts and debuged the codes. 
-Overall, we worked well together as a team to bring this project to the table. 
+For this project, all three team members contributed to our project. Specifically, we build the Starter code together. 
+For later sections, Michelle contributed more to the LLM programming module while Yiling and Ruishi helped editing the system prompts and debugged the codes. 
+Overall, we worked well together as a team to bring this project to the table.
 
 #########################################################################################
 # Optional: Feel free to include anything else that you want us to know about your      #
